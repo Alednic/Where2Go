@@ -1,4 +1,4 @@
-package com.umn.where2go.data
+package org.umn.where2go.data
 
 enum class Vibe(val label: String) {
     QUIET("Tenang"), STUDY("Cocok Nugas"), LIVELY("Ramai")

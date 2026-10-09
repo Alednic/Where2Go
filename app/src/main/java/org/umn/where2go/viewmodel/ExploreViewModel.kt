@@ -1,4 +1,4 @@
-package com.umn.where2go.viewmodel
+package org.umn.where2go.viewmodel
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -6,9 +6,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.umn.where2go.data.DummyData
-import com.umn.where2go.data.Place
-import com.umn.where2go.data.Vibe
+import org.umn.where2go.data.DummyData
+import org.umn.where2go.data.Place
+import org.umn.where2go.data.Vibe
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
