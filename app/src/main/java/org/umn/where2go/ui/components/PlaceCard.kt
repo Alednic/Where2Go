@@ -10,7 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.umn.where2go.data.Place
+import org.umn.where2go.data.Place
 
 @Composable
 fun PlaceCard(place: Place, isFavorite: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {

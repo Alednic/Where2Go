@@ -16,8 +16,8 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.umn.where2go.ui.components.FormField
-import com.umn.where2go.viewmodel.AuthViewModel
+import org.umn.where2go.viewmodel.AuthViewModel
+import org.umn.where2go.ui.components.FormField
 
 @Composable
 fun AuthScreen(onAuthenticated: () -> Unit, vm: AuthViewModel = viewModel())
@@ -33,7 +33,7 @@ fun AuthScreen(onAuthenticated: () -> Unit, vm: AuthViewModel = viewModel())
             Text(if (vm.isRegister) "Buat akun baru" else "Masuk ke akunmu", style = MaterialTheme.typography.bodyLarge)
             Spacer(Modifier.height(16.dp))
             if (vm.isRegister) FormField(vm.name, vm::onName, "Nama lengkap", vm.nameError)
-            FormField(vm.email, vm::onEmail, keyboardType = KeyboardType.Email)
+            FormField(vm.email, vm::onEmail, label = "Email", error = vm.emailError, keyboardType = KeyboardType.Email)
             FormField(
                 value = vm.password, onValueChange = vm::onPassword, label = "Password",
                 error = vm.passwordError, keyboardType = KeyboardType.Password, imeAction = ImeAction.Done,

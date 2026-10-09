@@ -10,10 +10,10 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import com.umn.where2go.data.Vibe
-import com.umn.where2go.ui.theme.VibeLivelyColor
-import com.umn.where2go.ui.theme.VibeQuietColor
-import com.umn.where2go.ui.theme.VibeStudyColor
+import org.umn.where2go.data.Vibe
+import org.umn.where2go.ui.theme.VibeLivelyColor
+import org.umn.where2go.ui.theme.VibeQuietColor
+import org.umn.where2go.ui.theme.VibeStudyColor
 
 fun Vibe.color(): Color = when (this) {
     Vibe.QUIET -> VibeQuietColor
