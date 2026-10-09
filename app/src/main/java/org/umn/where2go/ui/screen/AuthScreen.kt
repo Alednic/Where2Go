@@ -16,8 +16,8 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.umn.where2go.ui.components.FormField
 import com.umn.where2go.viewmodel.AuthViewModel
+import org.umn.where2go.ui.components.FormField
 
 @Composable
 fun AuthScreen(onAuthenticated: () -> Unit, vm: AuthViewModel = viewModel())
