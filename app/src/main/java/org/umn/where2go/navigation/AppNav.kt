@@ -1,4 +1,4 @@
-package com.umn.where2go.navigation
+package org.umn.where2go.navigation
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.EmojiEvents
@@ -18,8 +18,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.umn.where2go.ui.screens.*
-import com.umn.where2go.viewmodel.ExploreViewModel
+import org.umn.where2go.ui.screen.*
+import org.umn.where2go.viewmodel.ExploreViewModel
 
 object Routes {
     const val SPLASH = "splash"
