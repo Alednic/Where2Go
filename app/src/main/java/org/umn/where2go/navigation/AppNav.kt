@@ -1,4 +1,4 @@
-package com.umn.where2go.navigation
+package org.umn.where2go.navigation
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.EmojiEvents
@@ -18,8 +18,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.umn.where2go.ui.screens.*
-import com.umn.where2go.viewmodel.ExploreViewModel
+import org.umn.where2go.ui.screen.*
+import org.umn.where2go.viewmodel.ExploreViewModel
 
 object Routes {
     const val SPLASH = "splash"
@@ -67,45 +67,57 @@ private fun AppBottomBar(navController: NavHostController) {
 @Composable
 fun AppNav() {
     val navController = rememberNavController()
-    val exploreVm: ExploreViewModel = viewModel()   // dibagi ke Explore dan Detail (favorit)
+    val exploreVm: ExploreViewModel = viewModel() // dibagi ke Explore dan Detail (favorit)
     val bottomBar: @Composable () -> Unit = { AppBottomBar(navController) }
     val placeArg = listOf(navArgument(Routes.ARG_PLACE_ID) { type = NavType.IntType })
 
     NavHost(navController, startDestination = Routes.SPLASH) {
         composable(Routes.SPLASH) {
             SplashScreen(onFinished = {
-                navController.navigate(Routes.AUTH) { popUpTo(Routes.SPLASH) { inclusive = true } }
+                navController.navigate(Routes.AUTH) {
+                    popUpTo(Routes.SPLASH) { inclusive = true }
+                }
             })
         }
         composable(Routes.AUTH) {
             AuthScreen(onAuthenticated = {
-                navController.navigate(Routes.PERMISSION) { popUpTo(Routes.AUTH) { inclusive = true } }
+                navController.navigate(Routes.PERMISSION) {
+                    popUpTo(Routes.AUTH) { inclusive = true }
+                }
             })
         }
         composable(Routes.PERMISSION) {
             PermissionScreen(onContinue = {
-                navController.navigate(Routes.EXPLORE) { popUpTo(Routes.PERMISSION) { inclusive = true } }
+                navController.navigate(Routes.EXPLORE) {
+                    popUpTo(Routes.PERMISSION) { inclusive = true }
+                }
             })
         }
         composable(Routes.EXPLORE) {
-            ExploreScreen(exploreVm,
+            ExploreScreen(
+                exploreVm,
                 onPlaceClick = { id -> navController.navigate(Routes.detail(id)) },
-                bottomBar = bottomBar)
+                bottomBar = bottomBar
+            )
         }
         composable(Routes.LEADERBOARD) { LeaderboardScreen(bottomBar) }
 
         composable(Routes.DETAIL, arguments = placeArg) { entry ->
             val id = entry.arguments?.getInt(Routes.ARG_PLACE_ID) ?: -1
             PlaceDetailScreen(
-                placeId = id, vm = exploreVm,
+                placeId = id,
+                vm = exploreVm,
                 onBack = { navController.popBackStack() },
                 onCheckIn = { navController.navigate(Routes.checkIn(id)) }
             )
         }
         composable(Routes.CHECKIN, arguments = placeArg) { entry ->
             val id = entry.arguments?.getInt(Routes.ARG_PLACE_ID) ?: -1
-            CheckInScreen(placeId = id, onBack = { navController.popBackStack() },
-                onDone = { navController.popBackStack() })
+            CheckInScreen(
+                placeId = id,
+                onBack = { navController.popBackStack() },
+                onDone = { navController.popBackStack() }
+            )
         }
     }
 }
