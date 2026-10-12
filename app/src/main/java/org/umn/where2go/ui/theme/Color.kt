@@ -51,3 +51,23 @@ val DarkColors = darkColorScheme(
 val VibeQuietColor = Color(0xFF0F9D8A)   // teal  -> Tenang
 val VibeStudyColor = Violet              // ungu  -> Cocok Nugas
 val VibeLivelyColor = Color(0xFFE69B00)  // amber -> Ramai
+
+// ---- Warna komponen layar Place Detail (diukur dari mockup) ----
+val TitleInk = Color(0xFF111827)        // judul "Kopi Kenangan"
+val SubtleGray = Color(0xFFB8BCC3)      // alamat
+val StatCardBg = Color(0xFFF0F0F0)      // kartu 4.7 / 248 / Rp. 12K
+val ChartBar = Color(0xFFEEEDFE)        // batang "Jam Ramai" & kartu Pagi/Siang/Malam
+val ChartAxisBg = Color(0xFFFFF5EE)     // strip label jam
+val DaypartIcon = Color(0xFF3A30A0)
+val TrackGray = Color(0xFFD9D9D9)       // track progress "Cocok untuk"
+val BarNugas = Color(0xFF10B981)
+val BarHangout = Color(0xFF7B6EF6)
+val BarMeeting = Color(0xFFE59A12)
+val LavenderButton = Color(0xFFCBC4FB)  // tombol di kartu Kuliner
+
+// Chip tag (latar, teks)
+val TagTenangBg = Color(0xFFEEF2FF);  val TagTenangFg = Color(0xFF6366F1)
+val TagWifiBg = Color(0xFFDCFCE7);    val TagWifiFg = Color(0xFF16A34A)
+val TagVibesBg = Color(0xFFFEF9C3);   val TagVibesFg = Color(0xFFCA8A04)
+val TagFocusBg = Color(0xFFFAC0AC);   val TagFocusFg = Color(0xFFE8431A)
+val TagPriceBg = Color(0xFFFFE9C2);   val TagPriceFg = Color(0xFFE59A12)

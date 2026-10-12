@@ -11,13 +11,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.umn.where2go.data.Place
+import org.umn.where2go.data.distanceLabel
 
 @Composable
 fun PlaceCard(place: Place, isFavorite: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
     Card(onClick = onClick, modifier = modifier.fillMaxWidth()) {
         Row(Modifier.height(IntrinsicSize.Min)) {
-        
-        Box(Modifier.width(8.dp).fillMaxHeight().background(place.vibe.color()))
+            Box(Modifier.width(8.dp).fillMaxHeight().background(place.vibe.color()))
             Column(Modifier.weight(1f).padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(place.name, style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
@@ -28,7 +28,7 @@ fun PlaceCard(place: Place, isFavorite: Boolean, onClick: () -> Unit, modifier: 
                     color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                     VibeBadge(place.vibe)
-                    Pill("%.1f km".format(place.distanceKm))
+                    Pill(place.distanceLabel())
                     Pill(if (place.wifiMbps > 0) "${place.wifiMbps} Mbps" else "Tanpa Wi-Fi")
                 }
             }
