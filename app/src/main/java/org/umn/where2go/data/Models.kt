@@ -38,15 +38,36 @@ data class Place(
     ),
     val suitability: Suitability = Suitability(60, 50, 40),
     val culinary: List<Culinary> = emptyList(),
-    @DrawableRes val imageRes: Int? = null   // isi dengan R.drawable.nama_foto bila foto sudah ada
+    val cardTags: List<String> = emptyList(),   // chip putih di kartu Explore
+    @DrawableRes val imageRes: Int? = null       // isi dengan R.drawable.nama_foto bila foto sudah ada
 )
 
 fun Place.distanceLabel(): String =
     if (distanceKm < 1.0) "${(distanceKm * 1000).toInt()}m" else "%.1f km".format(distanceKm)
 
 data class Review(
-    val id: Int, val placeId: Int, val author: String,
-    val vibe: Vibe, val comment: String, val timeAgo: String
+    val id: Int,
+    val placeId: Int,
+    val author: String,
+    val vibe: Vibe,
+    val comment: String,
+    val timeAgo: String
 )
 
-data class Contributor(val rank: Int, val name: String, val level: String, val xp: Int)
+// (2) Contributor diperbarui (xp diganti tags, ditambah avatarRes)
+data class Contributor(
+    val rank: Int,
+    val name: String,
+    val level: String,
+    val tags: Int,
+    @DrawableRes val avatarRes: Int? = null
+)
+
+// (3) Model baru untuk tab "Top Tempat"
+data class TopPlace(
+    val rank: Int,
+    val name: String,
+    val area: String,
+    val checkIns: Int,
+    @DrawableRes val imageRes: Int? = null
+)

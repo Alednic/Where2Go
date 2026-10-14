@@ -37,6 +37,7 @@ import org.umn.where2go.data.*
 import org.umn.where2go.ui.components.VibeBadge
 import org.umn.where2go.ui.components.color
 import org.umn.where2go.ui.theme.*
+import org.umn.where2go.ui.components.icon
 import org.umn.where2go.viewmodel.ExploreViewModel
 
 private val GrayText = Color(0xFF6B7280)
@@ -245,12 +246,6 @@ private fun PeakHoursChart(values: List<Int>) {
             }
         }
     }
-}
-
-private fun Vibe.icon(): ImageVector = when (this) {
-    Vibe.QUIET -> Icons.Filled.Eco
-    Vibe.LIVELY -> Icons.Filled.LocalFireDepartment
-    Vibe.STUDY -> Icons.Filled.MenuBook
 }
 
 @Composable

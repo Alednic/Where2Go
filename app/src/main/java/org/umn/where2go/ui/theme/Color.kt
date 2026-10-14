@@ -5,12 +5,14 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
 
 /*
- * Palet diambil dari mockup Where2Go (PROJECT_MAP_KELOMPOK_6):
- *  - Vermilion (merah-oranye) #E8451D : tombol utama, judul, tab aktif, header Check-in
- *  - Peach #FFE7DD                    : latar slide / permukaan lembut
- *  - Lavender #C6C5FF                 : label, kartu, aksen sekunder
- *  - Ungu #7B6EF6                     : ikon lokasi, tombol Check-in tengah (FAB)
+ - Palet diambil dari mockup Where2Go (PROJECT_MAP_KELOMPOK_6):
+ - Vermilion (merah-oranye) #E8451D : tombol utama, judul, tab aktif, header Check-in
+ - Peach #FFE7DD                    : latar slide / permukaan lembut
+ - Lavender #C6C5FF                 : label, kartu, aksen sekunder
+ - Ungu #7B6EF6                     : ikon lokasi, tombol Check-in tengah (FAB)
  */
+
+// ---- Core Palette ----
 val Vermilion = Color(0xFFE8451D)
 val VermilionDark = Color(0xFFB8300F)
 val Peach = Color(0xFFFFE7DD)
@@ -20,6 +22,7 @@ val LavenderSoft = Color(0xFFE4E4FC)
 val Violet = Color(0xFF7B6EF6)
 val Gold = Color(0xFFFFD27A)
 
+// ---- Material 3 Color Schemes ----
 val LightColors = lightColorScheme(
     primary = Vermilion, onPrimary = Color.White,
     primaryContainer = Peach, onPrimaryContainer = Color(0xFF5A1708),
@@ -47,27 +50,48 @@ val DarkColors = darkColorScheme(
     outline = Color(0xFF9C8A84)
 )
 
-// Warna "vibe" (diambil dari pin peta dan bar "Cocok untuk" di mockup)
-val VibeQuietColor = Color(0xFF0F9D8A)   // teal  -> Tenang
-val VibeStudyColor = Violet              // ungu  -> Cocok Nugas
-val VibeLivelyColor = Color(0xFFE69B00)  // amber -> Ramai
+// ---- Warna Vibe & Pin Map ----
+val VibeQuietColor = Color(0xFF0F9D8A)   // Teal -> Tenang
+val VibeStudyColor = Violet              // Ungu -> Nugas
+val VibeLivelyColor = Color(0xFFE69B00)  // Amber -> Ramai
 
-// ---- Warna komponen layar Place Detail (diukur dari mockup) ----
-val TitleInk = Color(0xFF111827)        // judul "Kopi Kenangan"
-val SubtleGray = Color(0xFFB8BCC3)      // alamat
-val StatCardBg = Color(0xFFF0F0F0)      // kartu 4.7 / 248 / Rp. 12K
-val ChartBar = Color(0xFFEEEDFE)        // batang "Jam Ramai" & kartu Pagi/Siang/Malam
-val ChartAxisBg = Color(0xFFFFF5EE)     // strip label jam
+// ---- Component: Place Detail Screen ----
+val TitleInk = Color(0xFF111827)
+val SubtleGray = Color(0xFFB8BCC3)
+val StatCardBg = Color(0xFFF0F0F0)
+val ChartBar = Color(0xFFEEEDFE)
+val ChartAxisBg = Color(0xFFFFF5EE)
 val DaypartIcon = Color(0xFF3A30A0)
-val TrackGray = Color(0xFFD9D9D9)       // track progress "Cocok untuk"
+val TrackGray = Color(0xFFD9D9D9)
 val BarNugas = Color(0xFF10B981)
 val BarHangout = Color(0xFF7B6EF6)
 val BarMeeting = Color(0xFFE59A12)
-val LavenderButton = Color(0xFFCBC4FB)  // tombol di kartu Kuliner
+val LavenderButton = Color(0xFFCBC4FB)
 
-// Chip tag (latar, teks)
+// Chip Tag (Latar & Teks)
 val TagTenangBg = Color(0xFFEEF2FF);  val TagTenangFg = Color(0xFF6366F1)
 val TagWifiBg = Color(0xFFDCFCE7);    val TagWifiFg = Color(0xFF16A34A)
 val TagVibesBg = Color(0xFFFEF9C3);   val TagVibesFg = Color(0xFFCA8A04)
 val TagFocusBg = Color(0xFFFAC0AC);   val TagFocusFg = Color(0xFFE8431A)
 val TagPriceBg = Color(0xFFFFE9C2);   val TagPriceFg = Color(0xFFE59A12)
+
+// ---- Component: Explore / Check-in / Ranking ----
+val SearchBg = Color(0xFFFAF9F7)
+val SearchBorder = Color(0xFFD1CDCC)
+val StripTop = Color(0xFFD8D3FC)         // Strip chip di bawah foto kartu Explore
+val StripBottom = Color(0xFFAEA3F8)
+
+val ChipTealBg = Color(0xFFE7F5F3);   val ChipTeal = VibeQuietColor  // Disamakan agar konsisten
+val ChipSkyBg = Color(0xFFE7F4F8);    val ChipSky = Color(0xFF0891B2)
+val ChipAmberBg = Color(0xFFFDF5E8);  val ChipAmber = Color(0xFFE5B112)
+val ChipPriceSelBg = Color(0xFFFCECD8)
+val ChipIdleBg = Color(0xFFFFF5EE)
+val ChipIdleBorder = Color(0xFFEFD4C9)
+
+val RankCardBg = Color(0xFFFFF4EE)
+val RankCardBorder = ChipIdleBorder      // Reuse variabel agar hemat & konsisten
+val SegmentTrack = Color(0xFFD9D9D9)
+val PodiumGold = Color(0xFFFFD27A)
+val PodiumSilver = Color(0xFFC9C9C9)
+val PodiumBronze = Color(0xFFC67B55)
+val NavInactive = Color(0xFFB8B3AE)

@@ -6,50 +6,87 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import org.umn.where2go.data.Place
-import org.umn.where2go.data.Validators
 import org.umn.where2go.data.Vibe
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+/** Daftar pilihan chip, sama persis dengan mockup. */
+object CheckInOptions {
+    val vibes = listOf("Tenang", "Ramai", "Cozy", "Good Vibes", "Fokus")
+    val comforts = listOf("AC Dingin", "Kursi Nyaman", "Meja Luas", "Colokan Ada")
+    val activities = listOf("Cocok nugas", "Nongkrong", "Meeting", "Solo Time", "Date")
+    val prices = listOf("Affordable", "Mid-range", "Premium")
+    const val MAX_COMMENT = 200
+}
+
 class CheckInViewModel : ViewModel() {
-    var vibe by mutableStateOf<Vibe?>(null); private set
-    var visitors by mutableStateOf(""); private set
-    var wifi by mutableStateOf(""); private set
-    var review by mutableStateOf(""); private set
+    var vibes by mutableStateOf(emptySet<String>()); private set
+    var comforts by mutableStateOf(emptySet<String>()); private set
+    var activities by mutableStateOf(emptySet<String>()); private set
+    var price by mutableStateOf<String?>(null); private set
+    var comment by mutableStateOf(""); private set
     var submitted by mutableStateOf(false); private set
     var isSubmitting by mutableStateOf(false); private set
     var showSuccess by mutableStateOf(false); private set
     private var prefilled = false
 
-    /** Pre-fill form dari data dummy tempat yang dipilih */
+    /** Pre-fill dari data dummy tempat yang dipilih (vibe dan harga). */
     fun prefill(place: Place) {
         if (prefilled) return
         prefilled = true
-        vibe = place.vibe
-        wifi = place.wifiMbps.toString()
+        vibes = setOf(
+            when (place.vibe) {
+                Vibe.QUIET -> "Tenang"
+                Vibe.LIVELY -> "Ramai"
+                Vibe.STUDY -> "Fokus"
+            }
+        )
+        price = when {
+            place.minOrderK <= 15 -> "Affordable"
+            place.minOrderK <= 35 -> "Mid-range"
+            else -> "Premium"
+        }
     }
 
-    val vibeError: String? get() = if (submitted && vibe == null) "Pilih suasana tempat ini" else null
-    val visitorsError: String? get() =
-        if (submitted || visitors.isNotEmpty()) Validators.number(visitors, "Jumlah pengunjung", 1, 500) else null
-    val wifiError: String? get() =
-        if (submitted || wifi.isNotEmpty()) Validators.number(wifi, "Kecepatan Wi-Fi", 0, 1000) else null
-    val reviewError: String? get() =
-        if (submitted || review.isNotEmpty()) Validators.minLength(review, "Ulasan", 10) else null
+    // Error baru muncul setelah tombol Kirim ditekan
+    val vibeError: String?
+        get() =
+            if (submitted && vibes.isEmpty()) "Pilih minimal satu vibe" else null
+    val comfortError: String?
+        get() =
+            if (submitted && comforts.isEmpty()) "Pilih minimal satu kenyamanan" else null
+    val activityError: String?
+        get() =
+            if (submitted && activities.isEmpty()) "Pilih minimal satu aktivitas" else null
+    val priceError: String?
+        get() =
+            if (submitted && price == null) "Pilih satu kategori harga" else null
 
-    fun selectVibe(v: Vibe) { vibe = v }
-    // hanya menerima digit: input huruf ditolak
-    fun onVisitors(v: String) { if (v.length <= 3 && v.all { it.isDigit() }) visitors = v }
-    fun onWifi(v: String) { if (v.length <= 4 && v.all { it.isDigit() }) wifi = v }
-    fun onReview(v: String) { review = v }
+    fun toggleVibe(v: String) {
+        vibes = if (v in vibes) vibes - v else vibes + v
+    }
+
+    fun toggleComfort(v: String) {
+        comforts = if (v in comforts) comforts - v else comforts + v
+    }
+
+    fun toggleActivity(v: String) {
+        activities = if (v in activities) activities - v else activities + v
+    }
+
+    fun selectPrice(v: String) {
+        price = v
+    }
+
+    fun onComment(v: String) {
+        if (v.length <= CheckInOptions.MAX_COMMENT) comment = v
+    }
 
     fun submit() {
         submitted = true
-        val valid = vibe != null &&
-                Validators.number(visitors, "x", 1, 500) == null &&
-                Validators.number(wifi, "x", 0, 1000) == null &&
-                Validators.minLength(review, "x", 10) == null
-        if (!valid) return
+        val valid = vibes.isNotEmpty() && comforts.isNotEmpty() &&
+                activities.isNotEmpty() && price != null
+        if (!valid) return            // submit diblokir sampai semua grup wajib terisi
         viewModelScope.launch {
             isSubmitting = true
             delay(1000)
@@ -58,5 +95,7 @@ class CheckInViewModel : ViewModel() {
         }
     }
 
-    fun dismissSuccess() { showSuccess = false }
+    fun dismissSuccess() {
+        showSuccess = false
+    }
 }
