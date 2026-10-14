@@ -1,163 +1,84 @@
 package org.umn.where2go.ui.components
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import org.umn.where2go.data.Place
-import org.umn.where2go.data.Vibe
 import org.umn.where2go.data.distanceLabel
 import org.umn.where2go.ui.theme.*
 
+/** Kartu Explore: foto + gradasi gelap, nama putih, badge vibe, strip chip lavender. */
 @Composable
-fun PlaceCard(
-    place: Place,
-    isFavorite: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
+fun PlaceCard(place: Place, onClick: () -> Unit, modifier: Modifier = Modifier) {
     Card(
         onClick = onClick,
-        modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(17.dp),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 3.dp
-        ),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        )
+        shape = RoundedCornerShape(24.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+        modifier = modifier.fillMaxWidth()
     ) {
         Column {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(145.dp)
-            ) {
-                if (place.imageRes != null) {
-                    Image(
-                        painter = painterResource(place.imageRes),
-                        contentDescription = place.name,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxSize()
-                    )
-                } else {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(
-                                Brush.linearGradient(
-                                    listOf(
-                                        Peach,
-                                        Lavender,
-                                        Violet
-                                    )
-                                )
-                            )
-                    )
-                }
-
+            Box(Modifier.fillMaxWidth().height(124.dp)) {
+                PhotoBox(place.imageRes, Modifier.fillMaxSize(), fallback = place.vibe.color())
+                // gradasi gelap agar teks putih terbaca
                 Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(
-                            Brush.verticalGradient(
-                                listOf(
-                                    Color.Transparent,
-                                    Color(0xAA000000)
-                                ),
-                                startY = 80f
-                            )
-                        )
+                    Modifier.fillMaxSize().background(
+                        Brush.verticalGradient(listOf(Color.Transparent, Color(0xAA000000)))
+                    )
                 )
-
+                // badge vibe di kanan atas
                 Surface(
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(10.dp)
-                        .size(32.dp),
-                    shape = CircleShape,
-                    color = LavenderSoft
+                    color = ChartBar, shape = CircleShape,
+                    modifier = Modifier.align(Alignment.TopEnd).padding(10.dp).size(30.dp)
                 ) {
                     Box(contentAlignment = Alignment.Center) {
+                        Icon(place.vibe.icon(), null, Modifier.size(16.dp), tint = DaypartIcon)
+                    }
+                }
+                // nama + jarak di kiri bawah
+                Column(Modifier.align(Alignment.BottomStart).padding(16.dp)) {
+                    Text(
+                        place.name, color = Color.White, fontWeight = FontWeight.ExtraBold,
+                        style = MaterialTheme.typography.headlineMedium
+                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Filled.LocationOn, null, Modifier.size(14.dp), tint = Color.White)
+                        Spacer(Modifier.width(4.dp))
                         Text(
-                            text = when (place.vibe) {
-                                Vibe.QUIET -> "🌱"
-                                Vibe.STUDY -> "📚"
-                                Vibe.LIVELY -> "☕"
-                            },
-                            fontSize = 16.sp
+                            place.distanceLabel(), color = Color.White,
+                            style = MaterialTheme.typography.labelLarge
                         )
                     }
                 }
-
-                Column(
-                    modifier = Modifier
-                        .align(Alignment.BottomStart)
-                        .padding(14.dp)
-                ) {
-                    Text(
-                        text = place.name,
-                        color = Color.White,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.ExtraBold,
-                        maxLines = 1
-                    )
-
-                    Text(
-                        text = "📍 ${place.distanceLabel()}",
-                        color = Color.White,
-                        fontSize = 11.sp
-                    )
-                }
-
-                if (isFavorite) {
-                    Icon(
-                        imageVector = Icons.Default.Favorite,
-                        contentDescription = "Favorit",
-                        tint = Vermilion,
-                        modifier = Modifier
-                            .align(Alignment.TopStart)
-                            .padding(10.dp)
-                            .size(21.dp)
-                    )
-                }
             }
-
+            // strip lavender berisi chip putih
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Lavender)
-                    .padding(horizontal = 10.dp, vertical = 9.dp),
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                verticalAlignment = Alignment.CenterVertically
+                Modifier.fillMaxWidth()
+                    .background(Brush.verticalGradient(listOf(StripTop, StripBottom)))
+                    .horizontalScroll(rememberScrollState())
+                    .padding(horizontal = 12.dp, vertical = 10.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                val tags = place.facilities.take(3)
-
-                if (tags.isEmpty()) {
-                    PlaceTag("Tempat nyaman")
-                } else {
-                    tags.forEach { tag ->
-                        PlaceTag(tag)
+                place.cardTags.forEach { tag ->
+                    Surface(color = Color.White, shape = CircleShape) {
+                        Text(
+                            tag, color = Color(0xFF1B1B1B), fontWeight = FontWeight.SemiBold,
+                            style = MaterialTheme.typography.labelLarge,
+                            maxLines = 1, softWrap = false,
+                            modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp)
+                        )
                     }
                 }
             }
@@ -165,22 +86,3 @@ fun PlaceCard(
     }
 }
 
-@Composable
-private fun PlaceTag(text: String) {
-    Surface(
-        shape = RoundedCornerShape(50),
-        color = LavenderSoft
-    ) {
-        Text(
-            text = text,
-            color = TitleInk,
-            fontSize = 10.sp,
-            fontWeight = FontWeight.SemiBold,
-            maxLines = 1,
-            modifier = Modifier.padding(
-                horizontal = 9.dp,
-                vertical = 5.dp
-            )
-        )
-    }
-}
