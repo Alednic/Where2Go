@@ -10,7 +10,6 @@ import org.umn.where2go.data.Vibe
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-/** Daftar pilihan chip, sama persis dengan mockup. */
 object CheckInOptions {
     val vibes = listOf("Tenang", "Ramai", "Cozy", "Good Vibes", "Fokus")
     val comforts = listOf("AC Dingin", "Kursi Nyaman", "Meja Luas", "Colokan Ada")
@@ -30,7 +29,6 @@ class CheckInViewModel : ViewModel() {
     var showSuccess by mutableStateOf(false); private set
     private var prefilled = false
 
-    /** Pre-fill dari data dummy tempat yang dipilih (vibe dan harga). */
     fun prefill(place: Place) {
         if (prefilled) return
         prefilled = true
@@ -48,7 +46,6 @@ class CheckInViewModel : ViewModel() {
         }
     }
 
-    // Error baru muncul setelah tombol Kirim ditekan
     val vibeError: String?
         get() =
             if (submitted && vibes.isEmpty()) "Pilih minimal satu vibe" else null
@@ -86,7 +83,7 @@ class CheckInViewModel : ViewModel() {
         submitted = true
         val valid = vibes.isNotEmpty() && comforts.isNotEmpty() &&
                 activities.isNotEmpty() && price != null
-        if (!valid) return            // submit diblokir sampai semua grup wajib terisi
+        if (!valid) return
         viewModelScope.launch {
             isSubmitting = true
             delay(1000)

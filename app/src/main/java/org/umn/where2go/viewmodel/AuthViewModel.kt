@@ -22,7 +22,6 @@ class AuthViewModel : ViewModel() {
     private val emailErr: String? get() = Validators.email(email)
     private val passErr: String? get() = Validators.password(password)
 
-    // error baru tampil setelah user mengetik atau menekan tombol submit
     val nameError: String? get() = if (submitted || name.isNotEmpty()) nameErr else null
     val emailError: String? get() = if (submitted || email.isNotEmpty()) emailErr else null
     val passwordError: String? get() = if (submitted || password.isNotEmpty()) passErr else null
@@ -35,7 +34,7 @@ class AuthViewModel : ViewModel() {
 
     fun submit(onSuccess: () -> Unit) {
         submitted = true
-        if (nameErr != null || emailErr != null || passErr != null) return   // diblokir jika belum valid
+        if (nameErr != null || emailErr != null || passErr != null) return
         viewModelScope.launch {
             isLoading = true
             delay(1000)

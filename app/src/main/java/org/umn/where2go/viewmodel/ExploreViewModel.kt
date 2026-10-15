@@ -13,7 +13,6 @@ import org.umn.where2go.data.Vibe
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-/** Chip filter di bawah kolom cari (satu pilihan aktif). */
 enum class ExploreFilter(val label: String) {
     ALL("Semua"), QUIET("Tenang"), STUDY("Nugas"), BUDGET("Budget")
 }
@@ -26,7 +25,7 @@ class ExploreViewModel : ViewModel() {
     val favorites = mutableStateListOf<Int>()
 
     init {
-        viewModelScope.launch {          // simulasi loading data
+        viewModelScope.launch {
             delay(1200)
             places = DummyData.places
             isLoading = false

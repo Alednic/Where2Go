@@ -6,8 +6,6 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
-// Untuk font sendiri: taruh file .ttf di res/font lalu
-// val DisplayFont = FontFamily(Font(R.font.shrikhand_regular))
 val DisplayFont: FontFamily = FontFamily.Serif
 val BodyFont: FontFamily = FontFamily.SansSerif
 

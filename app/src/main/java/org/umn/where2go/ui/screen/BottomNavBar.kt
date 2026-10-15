@@ -46,7 +46,6 @@ fun BottomNavBar(
     onCheckInClick: () -> Unit
 ) {
     Box(Modifier.fillMaxWidth()) {
-        // bar putih; padding atas memberi ruang agar tombol tengah "menonjol"
         Surface(
             color = MaterialTheme.colorScheme.surface,
             shadowElevation = 16.dp,
@@ -61,7 +60,6 @@ fun BottomNavBar(
                         onNavigate(tab.route)
                     }
                 }
-                // slot tengah: hanya label, ikonnya adalah tombol pin di atas
                 Column(
                     Modifier.weight(1f).fillMaxHeight(),
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -101,7 +99,6 @@ private fun NavItem(tab: NavTab, selected: Boolean, modifier: Modifier, onClick:
     }
 }
 
-/** Tombol ungu berbentuk pin: kotak dengan 3 sudut bulat, diputar 45 derajat. */
 @Composable
 private fun CheckInPin(onClick: () -> Unit, modifier: Modifier = Modifier) {
     Box(

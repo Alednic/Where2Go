@@ -45,7 +45,6 @@ private val GrayLight = Color(0xFF9CA3AF)
 
 @Composable
 fun PlaceDetailScreen(placeId: Int, vm: ExploreViewModel, onBack: () -> Unit, onCheckIn: () -> Unit) {
-    // placeId datang dari argumen navigasi -> konten dirender dinamis
     val place = remember(placeId) { DummyData.places.find { it.id == placeId } }
     Scaffold(
         contentWindowInsets = WindowInsets(0),
@@ -88,7 +87,6 @@ private fun DetailContent(
         Hero(place, isFavorite, onBack, onToggleFavorite)
 
         Column(Modifier.padding(horizontal = 16.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
-            // ---- Judul + alamat ----
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 Icon(Icons.Filled.LocationOn, null, Modifier.size(44.dp), tint = MaterialTheme.colorScheme.primary)
                 Column {
@@ -98,28 +96,23 @@ private fun DetailContent(
                 }
             }
 
-            // ---- Chip tag ----
             Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 place.tags.forEach { TagChip(it) }
             }
 
-            // ---- Kartu statistik ----
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 StatCard("${place.rating}", "Vibe Score", Modifier.weight(1f))
                 StatCard("${place.checkIns}", "Check-ins", Modifier.weight(1f))
                 StatCard(if (place.minOrderK > 0) "Rp. ${place.minOrderK}K" else "Gratis", "Min. Order", Modifier.weight(1f))
             }
 
-            // ---- Jam Ramai ----
             SectionTitle("Jam Ramai")
             PeakHoursChart(place.peakHours)
 
-            // ---- Pagi / Siang / Malam ----
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 place.dayparts.forEach { DaypartCard(it, Modifier.weight(1f)) }
             }
 
-            // ---- Cocok untuk ----
             SectionTitle("Cocok untuk")
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 SuitabilityRow("Nugas", place.suitability.nugas, BarNugas)
@@ -127,12 +120,10 @@ private fun DetailContent(
                 SuitabilityRow("Meeting", place.suitability.meeting, BarMeeting)
             }
 
-            // ---- Kuliner ----
             SectionTitle("Kuliner")
             if (place.culinary.isEmpty()) Text("Belum ada data kuliner.", style = MaterialTheme.typography.bodyMedium)
             place.culinary.forEach { CulinaryCard(it) }
 
-            // ---- Ulasan komunitas (hapus bagian ini jika tidak ada di mockup) ----
             SectionTitle("Ulasan komunitas")
             if (reviews.isEmpty()) Text("Belum ada ulasan.", style = MaterialTheme.typography.bodyMedium)
             reviews.forEach { r ->
@@ -152,8 +143,6 @@ private fun DetailContent(
     }
 }
 
-// ---------------------------------------------------------------- komponen
-
 @Composable
 private fun Hero(place: Place, isFavorite: Boolean, onBack: () -> Unit, onToggleFavorite: () -> Unit) {
     val img = place.imageRes
@@ -161,7 +150,6 @@ private fun Hero(place: Place, isFavorite: Boolean, onBack: () -> Unit, onToggle
         if (img != null) {
             Image(painterResource(img), null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
         } else {
-            // placeholder sampai foto tempat dimasukkan ke res/drawable
             Box(Modifier.fillMaxSize().background(
                 Brush.verticalGradient(listOf(place.vibe.color().copy(alpha = 0.55f), place.vibe.color().copy(alpha = 0.95f)))
             ))

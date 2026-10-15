@@ -8,7 +8,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 
-/** Dipakai untuk tab Map dan Profil yang belum dibuat di versi UTS. */
 @Composable
 fun PlaceholderScreen(title: String, bottomBar: @Composable () -> Unit) {
     Scaffold(bottomBar = bottomBar) { padding ->

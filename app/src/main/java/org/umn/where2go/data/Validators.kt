@@ -2,7 +2,6 @@ package org.umn.where2go.data
 
 import android.util.Patterns
 
-/** Mengembalikan pesan error, atau null jika valid. */
 object Validators {
     fun required(value: String, label: String): String? =
         if (value.isBlank()) "$label wajib diisi" else null

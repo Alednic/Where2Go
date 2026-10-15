@@ -20,7 +20,6 @@ import org.umn.where2go.data.Place
 import org.umn.where2go.data.distanceLabel
 import org.umn.where2go.ui.theme.*
 
-/** Kartu Explore: foto + gradasi gelap, nama putih, badge vibe, strip chip lavender. */
 @Composable
 fun PlaceCard(place: Place, onClick: () -> Unit, modifier: Modifier = Modifier) {
     Card(
@@ -32,13 +31,11 @@ fun PlaceCard(place: Place, onClick: () -> Unit, modifier: Modifier = Modifier) 
         Column {
             Box(Modifier.fillMaxWidth().height(124.dp)) {
                 PhotoBox(place.imageRes, Modifier.fillMaxSize(), fallback = place.vibe.color())
-                // gradasi gelap agar teks putih terbaca
                 Box(
                     Modifier.fillMaxSize().background(
                         Brush.verticalGradient(listOf(Color.Transparent, Color(0xAA000000)))
                     )
                 )
-                // badge vibe di kanan atas
                 Surface(
                     color = ChartBar, shape = CircleShape,
                     modifier = Modifier.align(Alignment.TopEnd).padding(10.dp).size(30.dp)
@@ -47,7 +44,6 @@ fun PlaceCard(place: Place, onClick: () -> Unit, modifier: Modifier = Modifier) 
                         Icon(place.vibe.icon(), null, Modifier.size(16.dp), tint = DaypartIcon)
                     }
                 }
-                // nama + jarak di kiri bawah
                 Column(Modifier.align(Alignment.BottomStart).padding(16.dp)) {
                     Text(
                         place.name, color = Color.White, fontWeight = FontWeight.ExtraBold,
@@ -63,7 +59,6 @@ fun PlaceCard(place: Place, onClick: () -> Unit, modifier: Modifier = Modifier) 
                     }
                 }
             }
-            // strip lavender berisi chip putih
             Row(
                 Modifier.fillMaxWidth()
                     .background(Brush.verticalGradient(listOf(StripTop, StripBottom)))

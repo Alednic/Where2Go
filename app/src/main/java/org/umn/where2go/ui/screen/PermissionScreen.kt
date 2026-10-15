@@ -11,7 +11,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 
-/** MOCKUP fitur native (lokasi): tidak ada akses GPS sungguhan.*/
 @Composable
 fun PermissionScreen(onContinue: () -> Unit) {
     var detecting by remember { mutableStateOf(false) }

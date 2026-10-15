@@ -6,13 +6,10 @@ enum class Vibe(val label: String) {
     QUIET("Tenang"), STUDY("Nugas"), LIVELY("Ramai")
 }
 
-/** Suasana pada waktu tertentu (kartu Pagi / Siang / Malam) */
 data class DayPart(val label: String, val vibe: Vibe)
 
-/** Skor kecocokan 0..100 (bar "Cocok untuk") */
 data class Suitability(val nugas: Int, val hangout: Int, val meeting: Int)
 
-/** Item di bagian "Kuliner" */
 data class Culinary(val name: String, val description: String, val price: Int = 0)
 
 data class Place(
@@ -21,25 +18,24 @@ data class Place(
     val address: String,
     val distanceKm: Double,
     val vibe: Vibe,
-    val quietness: Int,          // 0..100
-    val wifiMbps: Int,           // 0 = tidak ada Wi-Fi
+    val quietness: Int,
+    val wifiMbps: Int,
     val hasOutlet: Boolean,
-    val rating: Double,          // "Vibe Score"
+    val rating: Double,
     val openHours: String,
     val description: String,
     val facilities: List<String>,
-    // ---- field tambahan untuk layar Place Detail ----
     val checkIns: Int = 0,
-    val minOrderK: Int = 0,      // dalam ribu rupiah (12 = Rp. 12K)
+    val minOrderK: Int = 0,
     val tags: List<String> = emptyList(),
-    val peakHours: List<Int> = listOf(30, 20, 28, 28, 35, 42, 70, 55),   // jam 07,09,11,13,15,17,19,21
+    val peakHours: List<Int> = listOf(30, 20, 28, 28, 35, 42, 70, 55),
     val dayparts: List<DayPart> = listOf(
         DayPart("Pagi", Vibe.QUIET), DayPart("Siang", Vibe.LIVELY), DayPart("Malam", Vibe.STUDY)
     ),
     val suitability: Suitability = Suitability(60, 50, 40),
     val culinary: List<Culinary> = emptyList(),
-    val cardTags: List<String> = emptyList(),   // chip putih di kartu Explore
-    @DrawableRes val imageRes: Int? = null       // isi dengan R.drawable.nama_foto bila foto sudah ada
+    val cardTags: List<String> = emptyList(),
+    @DrawableRes val imageRes: Int? = null
 )
 
 fun Place.distanceLabel(): String =
@@ -54,7 +50,6 @@ data class Review(
     val timeAgo: String
 )
 
-// (2) Contributor diperbarui (xp diganti tags, ditambah avatarRes)
 data class Contributor(
     val rank: Int,
     val name: String,
@@ -63,7 +58,6 @@ data class Contributor(
     @DrawableRes val avatarRes: Int? = null
 )
 
-// (3) Model baru untuk tab "Top Tempat"
 data class TopPlace(
     val rank: Int,
     val name: String,

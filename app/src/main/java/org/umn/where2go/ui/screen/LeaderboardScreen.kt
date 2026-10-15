@@ -31,7 +31,7 @@ import org.umn.where2go.ui.theme.*
 
 @Composable
 fun LeaderboardScreen(bottomBar: @Composable () -> Unit) {
-    var tab by rememberSaveable { mutableIntStateOf(0) }       // 0 = kontributor, 1 = tempat
+    var tab by rememberSaveable { mutableIntStateOf(0) }
     val sorted = remember { DummyData.contributors.sortedByDescending { it.tags } }
 
     Scaffold(containerColor = MaterialTheme.colorScheme.background, bottomBar = bottomBar) { padding ->
@@ -55,7 +55,6 @@ fun LeaderboardScreen(bottomBar: @Composable () -> Unit) {
                 }
             }
 
-            // kartu posisi user, menempel di bawah (hanya di tab Top Kontributor)
             if (tab == 0) CurrentUserCard(DummyData.currentUser)
         }
     }
@@ -76,7 +75,6 @@ private fun RankingHeader(tab: Int, onTab: (Int) -> Unit) {
     }
 }
 
-/** Tab pil abu-abu; yang aktif berwarna merah-oranye. */
 @Composable
 private fun SegmentedTabs(labels: List<String>, selected: Int, onSelect: (Int) -> Unit) {
     Row(Modifier.fillMaxWidth().clip(CircleShape).background(SegmentTrack).padding(4.dp)) {
@@ -96,9 +94,6 @@ private fun SegmentedTabs(labels: List<String>, selected: Int, onSelect: (Int) -
     }
 }
 
-// ------------------------------------------------------------------ Top Kontributor
-
-/** Podium urutan tampilan 2 - 1 - 3 (juara 1 di tengah dan paling tinggi). */
 @Composable
 private fun Podium(top3: List<Contributor>) {
     Row(
@@ -152,12 +147,10 @@ private fun ContributorRow(c: Contributor) {
             }
             Text("${c.tags} Tags", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleSmall)
         }
-        // garis pemisah hitam tipis seperti di mockup
         Box(Modifier.fillMaxWidth().height(1.dp).background(MaterialTheme.colorScheme.onBackground))
     }
 }
 
-/** Kartu posisi user sendiri: latar peach, garis tepi merah-oranye. */
 @Composable
 private fun CurrentUserCard(me: Contributor) {
     Surface(
@@ -190,8 +183,6 @@ private fun CurrentUserCard(me: Contributor) {
         }
     }
 }
-
-// ------------------------------------------------------------------ Top Tempat
 
 @Composable
 private fun TopPlaceCard(p: TopPlace) {

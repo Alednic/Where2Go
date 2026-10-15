@@ -66,7 +66,6 @@ fun Pill(text: String) {
     }
 }
 
-/** Text field standar: isError + supportingText + keyboard type */
 @Composable
 fun FormField(
     value: String,
@@ -97,7 +96,6 @@ fun FormField(
     )
 }
 
-/** Foto dari drawable; jika belum ada, tampil gradasi warna sebagai placeholder. */
 @Composable
 fun PhotoBox(
     @DrawableRes imageRes: Int?,
@@ -125,7 +123,6 @@ fun PhotoBox(
     }
 }
 
-/** Ikon untuk tiap vibe (dipakai Explore dan Detail). */
 fun Vibe.icon(): ImageVector = when (this) {
     Vibe.QUIET -> Icons.Filled.Eco
     Vibe.LIVELY -> Icons.Filled.LocalFireDepartment

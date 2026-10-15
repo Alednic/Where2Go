@@ -31,7 +31,6 @@ object Routes {
     fun checkIn(id: Int) = "checkin/$id"
 }
 
-/** Pindah tab tanpa menumpuk back stack dan memulihkan state tab. */
 private fun NavHostController.navigateToTab(route: String) {
     navigate(route) {
         popUpTo(Routes.EXPLORE) { saveState = true }
@@ -53,7 +52,6 @@ fun AppNav() {
             currentRoute = currentRoute,
             onNavigate = { navController.navigateToTab(it) },
             onCheckInClick = {
-                // tombol tengah: check-in ke tempat terdekat (data dummy)
                 val nearest = DummyData.places.minByOrNull { it.distanceKm }?.id ?: 1
                 navController.navigate(Routes.checkIn(nearest))
             }
@@ -77,7 +75,6 @@ fun AppNav() {
             })
         }
 
-        // ---- 5 tab ----
         composable(Routes.MAP) { PlaceholderScreen("Map", bottomBar) }
         composable(Routes.EXPLORE) {
             ExploreScreen(
@@ -89,7 +86,6 @@ fun AppNav() {
         composable(Routes.LEADERBOARD) { LeaderboardScreen(bottomBar) }
         composable(Routes.PROFILE) { PlaceholderScreen("Profil", bottomBar) }
 
-        // ---- layar dengan argumen ----
         composable(Routes.DETAIL, arguments = placeArg) { entry ->
             val id = entry.arguments?.getInt(Routes.ARG_PLACE_ID) ?: -1
             PlaceDetailScreen(

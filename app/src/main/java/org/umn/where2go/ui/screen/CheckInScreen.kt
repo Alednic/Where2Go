@@ -79,7 +79,6 @@ fun CheckInScreen(
             ChoiceGroup("\uD83D\uDCB0", "HARGA", CheckInOptions.prices, setOfNotNull(vm.price),
                 vm::selectPrice, ChipAmber, ChipPriceSelBg, vm.priceError)
 
-            // ---- Komentar (opsional) ----
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("\uD83D\uDCAC KOMENTAR", fontWeight = FontWeight.ExtraBold,
                     style = MaterialTheme.typography.titleSmall)
@@ -155,7 +154,6 @@ private fun PlaceSummaryCard(place: Place) {
     }
 }
 
-/** Satu grup chip: judul + tanda wajib (*) + chip yang membungkus + pesan error. */
 @Composable
 private fun ChoiceGroup(
     emoji: String, title: String, options: List<String>, selected: Set<String>,

@@ -22,21 +22,17 @@ import org.umn.where2go.R
 
 @Composable
 fun SplashScreen(onFinished: () -> Unit) {
-    // pindah ke layar berikutnya setelah 2 detik
     LaunchedEffect(Unit) { delay(2000); onFinished() }
 
     Box(Modifier.fillMaxSize()) {
-        // Lapisan 1: foto latar
         Image(
             painterResource(R.drawable.splash_bg), null,
             Modifier.fillMaxSize(), contentScale = ContentScale.Crop
         )
-        // Lapisan 2: warna oranye di atas foto
         Box(
             Modifier.fillMaxSize()
                 .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.82f))
         )
-        // Lapisan 3 sampai 5: konten
         Column(
             Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding(),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -49,7 +45,6 @@ fun SplashScreen(onFinished: () -> Unit) {
             )
             Spacer(Modifier.height(32.dp))
 
-            // maskot + pin lokasi di kiri atas
             Box(Modifier.fillMaxWidth(0.72f)) {
                 Icon(
                     Icons.Filled.LocationOn, null,
