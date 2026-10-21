@@ -10,7 +10,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Eco
+import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.material.icons.filled.Savings
 import androidx.compose.material.icons.filled.Search
@@ -60,9 +62,18 @@ fun ExploreScreen(
                 IconButton(
                     onClick = { onThemeChange(!darkTheme) }
                 ) {
-                    Text(
-                        text = if (darkTheme) "☀️" else "🌙",
-                        style = MaterialTheme.typography.titleLarge
+                    Icon(
+                        imageVector = if (darkTheme) {
+                            Icons.Filled.LightMode
+                        } else {
+                            Icons.Filled.DarkMode
+                        },
+                        contentDescription = if (darkTheme) {
+                            "Ganti ke light mode"
+                        } else {
+                            "Ganti ke dark mode"
+                        },
+                        tint = MaterialTheme.colorScheme.primary
                     )
                 }
             }

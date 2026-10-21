@@ -28,12 +28,17 @@ import org.umn.where2go.navigation.Routes
 import org.umn.where2go.ui.theme.NavInactive
 import org.umn.where2go.ui.theme.Violet
 
-private data class NavTab(val route: String, val label: String, val icon: ImageVector)
+private data class NavTab(
+    val route: String,
+    val label: String,
+    val icon: ImageVector
+)
 
 private val leftTabs = listOf(
     NavTab(Routes.MAP, "Map", Icons.Outlined.Map),
     NavTab(Routes.EXPLORE, "Explore", Icons.Outlined.Search)
 )
+
 private val rightTabs = listOf(
     NavTab(Routes.LEADERBOARD, "Ranking", Icons.Outlined.EmojiEvents),
     NavTab(Routes.PROFILE, "Profil", Icons.Outlined.Person)
@@ -49,50 +54,90 @@ fun BottomNavBar(
         Surface(
             color = MaterialTheme.colorScheme.surface,
             shadowElevation = 16.dp,
-            modifier = Modifier.padding(top = 44.dp).fillMaxWidth()
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth()
         ) {
             Row(
-                Modifier.navigationBarsPadding().height(64.dp),
+                modifier = Modifier
+                    .navigationBarsPadding()
+                    .height(64.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 leftTabs.forEach { tab ->
-                    NavItem(tab, tab.route == currentRoute, Modifier.weight(1f)) {
+                    NavItem(
+                        tab = tab,
+                        selected = tab.route == currentRoute,
+                        modifier = Modifier.weight(1f)
+                    ) {
                         onNavigate(tab.route)
                     }
                 }
+
                 Column(
-                    Modifier.weight(1f).fillMaxHeight(),
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight(),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Bottom
                 ) {
                     Text(
-                        "Check In", color = NavInactive,
+                        text = "Check In",
+                        color = NavInactive,
                         style = MaterialTheme.typography.labelSmall,
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
                 }
+
                 rightTabs.forEach { tab ->
-                    NavItem(tab, tab.route == currentRoute, Modifier.weight(1f)) {
+                    NavItem(
+                        tab = tab,
+                        selected = tab.route == currentRoute,
+                        modifier = Modifier.weight(1f)
+                    ) {
                         onNavigate(tab.route)
                     }
                 }
             }
         }
-        CheckInPin(onCheckInClick, Modifier.align(Alignment.TopCenter))
+
+        CheckInPin(
+            onClick = onCheckInClick,
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .offset(y = (-44).dp)
+        )
     }
 }
 
 @Composable
-private fun NavItem(tab: NavTab, selected: Boolean, modifier: Modifier, onClick: () -> Unit) {
-    val color = if (selected) MaterialTheme.colorScheme.primary else NavInactive
+private fun NavItem(
+    tab: NavTab,
+    selected: Boolean,
+    modifier: Modifier,
+    onClick: () -> Unit
+) {
+    val color =
+        if (selected) MaterialTheme.colorScheme.primary
+        else NavInactive
+
     Column(
-        modifier.fillMaxHeight().clickable(onClick = onClick),
+        modifier = modifier
+            .fillMaxHeight()
+            .clickable(onClick = onClick),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Icon(tab.icon, tab.label, tint = color, modifier = Modifier.size(28.dp))
+        Icon(
+            imageVector = tab.icon,
+            contentDescription = tab.label,
+            tint = color,
+            modifier = Modifier.size(28.dp)
+        )
+
         Text(
-            tab.label, color = color,
+            text = tab.label,
+            color = color,
             fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
             style = MaterialTheme.typography.labelSmall
         )
@@ -100,17 +145,37 @@ private fun NavItem(tab: NavTab, selected: Boolean, modifier: Modifier, onClick:
 }
 
 @Composable
-private fun CheckInPin(onClick: () -> Unit, modifier: Modifier = Modifier) {
+private fun CheckInPin(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     Box(
-        modifier.size(72.dp).clip(CircleShape).clickable(onClick = onClick),
+        modifier = modifier
+            .size(72.dp)
+            .clip(CircleShape)
+            .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
         Box(
-            Modifier.size(50.dp).rotate(45f).background(
-                Violet,
-                RoundedCornerShape(topStart = 25.dp, topEnd = 25.dp, bottomStart = 25.dp, bottomEnd = 4.dp)
-            )
+            Modifier
+                .size(50.dp)
+                .rotate(45f)
+                .background(
+                    Violet,
+                    RoundedCornerShape(
+                        topStart = 25.dp,
+                        topEnd = 25.dp,
+                        bottomStart = 25.dp,
+                        bottomEnd = 4.dp
+                    )
+                )
         )
-        Icon(Icons.Filled.Check, "Check In", tint = Color.White, modifier = Modifier.size(24.dp))
+
+        Icon(
+            imageVector = Icons.Filled.Check,
+            contentDescription = "Check In",
+            tint = Color.White,
+            modifier = Modifier.size(24.dp)
+        )
     }
 }
