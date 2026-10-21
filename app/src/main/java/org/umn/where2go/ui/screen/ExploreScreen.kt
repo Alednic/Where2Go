@@ -31,44 +31,108 @@ import org.umn.where2go.viewmodel.ExploreViewModel
 fun ExploreScreen(
     vm: ExploreViewModel,
     onPlaceClick: (Int) -> Unit,
-    bottomBar: @Composable () -> Unit
+    bottomBar: @Composable () -> Unit,
+    darkTheme: Boolean,
+    onThemeChange: (Boolean) -> Unit
 ) {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         bottomBar = bottomBar
     ) { padding ->
-        Column(Modifier.padding(padding).fillMaxSize()) {
-            Text(
-                "Explore", style = MaterialTheme.typography.displayMedium,
-                modifier = Modifier.statusBarsPadding().padding(start = 24.dp, top = 16.dp, end = 24.dp)
-            )
+        Column(
+            Modifier
+                .padding(padding)
+                .fillMaxSize()
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .statusBarsPadding()
+                    .padding(start = 24.dp, top = 16.dp, end = 16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Explore",
+                    style = MaterialTheme.typography.displayMedium
+                )
+
+                IconButton(
+                    onClick = { onThemeChange(!darkTheme) }
+                ) {
+                    Text(
+                        text = if (darkTheme) "☀️" else "🌙",
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                }
+            }
+
             Spacer(Modifier.height(12.dp))
-            SearchField(vm.query, vm::onQueryChange, Modifier.padding(horizontal = 24.dp))
+
+            SearchField(
+                vm.query,
+                vm::onQueryChange,
+                Modifier.padding(horizontal = 24.dp)
+            )
+
             Spacer(Modifier.height(12.dp))
 
             LazyRow(
                 contentPadding = PaddingValues(horizontal = 24.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(ExploreFilter.entries.toList()) { f ->
-                    FilterPill(f, selected = vm.filter == f, onClick = { vm.selectFilter(f) })
+                items(ExploreFilter.entries.toList()) { filter ->
+                    FilterPill(
+                        filter = filter,
+                        selected = vm.filter == filter,
+                        onClick = { vm.selectFilter(filter) }
+                    )
                 }
             }
+
             Spacer(Modifier.height(12.dp))
 
             when {
-                vm.isLoading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
+                vm.isLoading -> {
+                    Box(
+                        Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
                 }
-                vm.filteredPlaces.isEmpty() -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("Tidak ada tempat yang cocok", style = MaterialTheme.typography.bodyLarge)
+
+                vm.filteredPlaces.isEmpty() -> {
+                    Box(
+                        Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            "Tidak ada tempat yang cocok",
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    }
                 }
-                else -> LazyColumn(
-                    contentPadding = PaddingValues(start = 24.dp, end = 24.dp, top = 4.dp, bottom = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    items(vm.filteredPlaces, key = { it.id }) { place ->
-                        PlaceCard(place, onClick = { onPlaceClick(place.id) })
+
+                else -> {
+                    LazyColumn(
+                        contentPadding = PaddingValues(
+                            start = 24.dp,
+                            end = 24.dp,
+                            top = 4.dp,
+                            bottom = 16.dp
+                        ),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        items(
+                            vm.filteredPlaces,
+                            key = { place -> place.id }
+                        ) { place ->
+                            PlaceCard(
+                                place,
+                                onClick = { onPlaceClick(place.id) }
+                            )
+                        }
                     }
                 }
             }
@@ -77,51 +141,89 @@ fun ExploreScreen(
 }
 
 @Composable
-private fun SearchField(value: String, onChange: (String) -> Unit, modifier: Modifier = Modifier) {
+private fun SearchField(
+    value: String,
+    onChange: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
     OutlinedTextField(
-        value = value, onValueChange = onChange,
-        placeholder = { Text("Cari tempat, vibe, area...") },
-        leadingIcon = { Icon(Icons.Filled.Search, null) },
+        value = value,
+        onValueChange = onChange,
+        placeholder = {
+            Text("Cari tempat, vibe, area...")
+        },
+        leadingIcon = {
+            Icon(Icons.Filled.Search, null)
+        },
         singleLine = true,
         shape = RoundedCornerShape(10.dp),
         colors = OutlinedTextFieldDefaults.colors(
-            focusedContainerColor = SearchBg, unfocusedContainerColor = SearchBg,
-            focusedTextColor = Color(0xFF1B1B1B), unfocusedTextColor = Color(0xFF1B1B1B),
+            focusedContainerColor = SearchBg,
+            unfocusedContainerColor = SearchBg,
+            focusedTextColor = Color(0xFF1B1B1B),
+            unfocusedTextColor = Color(0xFF1B1B1B),
             unfocusedBorderColor = SearchBorder
         ),
         modifier = modifier.fillMaxWidth()
     )
 }
 
-private data class PillStyle(val accent: Color, val tint: Color, val icon: ImageVector?)
+private data class PillStyle(
+    val accent: Color,
+    val tint: Color,
+    val icon: ImageVector?
+)
 
 private fun ExploreFilter.style(primary: Color) = when (this) {
-    ExploreFilter.ALL -> PillStyle(primary, Peach, null)
-    ExploreFilter.QUIET -> PillStyle(ChipTeal, ChipTealBg, Icons.Filled.Eco)
-    ExploreFilter.STUDY -> PillStyle(ChipSky, ChipSkyBg, Icons.Filled.MenuBook)
-    ExploreFilter.BUDGET -> PillStyle(ChipAmber, ChipAmberBg, Icons.Filled.Savings)
+    ExploreFilter.ALL ->
+        PillStyle(primary, Peach, null)
+
+    ExploreFilter.QUIET ->
+        PillStyle(ChipTeal, ChipTealBg, Icons.Filled.Eco)
+
+    ExploreFilter.STUDY ->
+        PillStyle(ChipSky, ChipSkyBg, Icons.Filled.MenuBook)
+
+    ExploreFilter.BUDGET ->
+        PillStyle(ChipAmber, ChipAmberBg, Icons.Filled.Savings)
 }
 
 @Composable
-private fun FilterPill(filter: ExploreFilter, selected: Boolean, onClick: () -> Unit) {
-    val s = filter.style(MaterialTheme.colorScheme.primary)
+private fun FilterPill(
+    filter: ExploreFilter,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    val style = filter.style(MaterialTheme.colorScheme.primary)
+
     Surface(
-        onClick = onClick, shape = CircleShape,
-        color = if (selected) s.accent else s.tint,
-        border = BorderStroke(1.dp, s.accent)
+        onClick = onClick,
+        shape = CircleShape,
+        color = if (selected) style.accent else style.tint,
+        border = BorderStroke(1.dp, style.accent)
     ) {
         Row(
-            Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+            modifier = Modifier.padding(
+                horizontal = 16.dp,
+                vertical = 8.dp
+            ),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             Text(
-                filter.label, fontWeight = FontWeight.Bold,
+                text = filter.label,
+                fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.labelLarge,
                 color = if (selected) Color.White else Color(0xFF1B1B1B)
             )
-            s.icon?.let {
-                Icon(it, null, Modifier.size(16.dp), tint = if (selected) Color.White else s.accent)
+
+            style.icon?.let { icon ->
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp),
+                    tint = if (selected) Color.White else style.accent
+                )
             }
         }
     }
