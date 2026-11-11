@@ -20,12 +20,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import org.umn.where2go.data.DummyData
 import org.umn.where2go.data.Place
 import org.umn.where2go.ui.components.PhotoBox
 import org.umn.where2go.ui.components.color
@@ -35,11 +35,12 @@ import org.umn.where2go.viewmodel.CheckInViewModel
 
 @Composable
 fun CheckInScreen(
-    placeId: Int, onBack: () -> Unit, onDone: () -> Unit,
+    placeId: Int, places: List<Place>, onBack: () -> Unit, onDone: () -> Unit,
     vm: CheckInViewModel = viewModel()
 ) {
-    val place = remember(placeId) { DummyData.places.find { it.id == placeId } }
-    LaunchedEffect(placeId) { place?.let(vm::prefill) }
+    val context = LocalContext.current
+    val place = remember(placeId, places) { places.find { it.id == placeId } }
+    LaunchedEffect(place) { place?.let(vm::prefill) }
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -48,7 +49,8 @@ fun CheckInScreen(
         bottomBar = {
             Surface(color = MaterialTheme.colorScheme.background) {
                 Button(
-                    onClick = vm::submit, enabled = !vm.isSubmitting,
+                    onClick = { place?.let { vm.submit(context, it.id.toLong()) } },
+                    enabled = place != null && !vm.isSubmitting,
                     shape = RoundedCornerShape(20.dp),
                     modifier = Modifier.fillMaxWidth().navigationBarsPadding()
                         .padding(16.dp).height(56.dp)
@@ -68,9 +70,9 @@ fun CheckInScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(18.dp)
         ) {
-            if (place != null) PlaceSummaryCard(place) else Text("Tempat tidak ditemukan")
+            if (place != null) PlaceSummaryCard(place) else Text("Tempat tidak ditemukan atau data belum selesai dimuat.")
 
-            ChoiceGroup("\u2728", "VIBE", CheckInOptions.vibes, vm.vibes, vm::toggleVibe,
+            ChoiceGroup("\u2728", "VIBE", CheckInOptions.vibes, setOfNotNull(vm.vibe), vm::selectVibe,
                 ChipTeal, ChipTealBg, vm.vibeError)
             ChoiceGroup("\uD83D\uDECB\uFE0F", "KENYAMANAN", CheckInOptions.comforts, vm.comforts,
                 vm::toggleComfort, ChipTeal, ChipTealBg, vm.comfortError)
@@ -79,6 +81,21 @@ fun CheckInScreen(
             ChoiceGroup("\uD83D\uDCB0", "HARGA", CheckInOptions.prices, setOfNotNull(vm.price),
                 vm::selectPrice, ChipAmber, ChipPriceSelBg, vm.priceError)
 
+            vm.errorMessage?.let { message ->
+                Surface(
+                    color = MaterialTheme.colorScheme.errorContainer,
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text(
+                        message,
+                        color = MaterialTheme.colorScheme.onErrorContainer,
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(12.dp)
+                    )
+                }
+            }
+
+            // ---- Komentar (opsional) ----
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("\uD83D\uDCAC KOMENTAR", fontWeight = FontWeight.ExtraBold,
                     style = MaterialTheme.typography.titleSmall)
@@ -105,7 +122,7 @@ fun CheckInScreen(
         AlertDialog(
             onDismissRequest = {},
             title = { Text("Check-in berhasil!") },
-            text = { Text("Terima kasih sudah berbagi vibe. Kamu mendapat +20 XP.") },
+            text = { Text("Check-in sudah tersimpan. Terima kasih sudah berbagi vibe!") },
             confirmButton = {
                 TextButton(onClick = { vm.dismissSuccess(); onDone() }) { Text("OK") }
             }
@@ -154,6 +171,7 @@ private fun PlaceSummaryCard(place: Place) {
     }
 }
 
+/** Satu grup chip: judul + tanda wajib (*) + chip yang membungkus + pesan error. */
 @Composable
 private fun ChoiceGroup(
     emoji: String, title: String, options: List<String>, selected: Set<String>,

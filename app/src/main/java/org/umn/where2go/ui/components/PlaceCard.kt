@@ -30,7 +30,12 @@ fun PlaceCard(place: Place, onClick: () -> Unit, modifier: Modifier = Modifier) 
     ) {
         Column {
             Box(Modifier.fillMaxWidth().height(124.dp)) {
-                PhotoBox(place.imageRes, Modifier.fillMaxSize(), fallback = place.vibe.color())
+                PhotoBox(
+                    place.imageRes,
+                    Modifier.fillMaxSize(),
+                    fallback = place.vibe.color(),
+                    imageUrl = place.imageUrl
+                )
                 Box(
                     Modifier.fillMaxSize().background(
                         Brush.verticalGradient(listOf(Color.Transparent, Color(0xAA000000)))

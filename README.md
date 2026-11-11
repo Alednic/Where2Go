@@ -38,11 +38,12 @@ The application allows users to explore recommended places, view place details, 
 
 ### 6. Community Check-in
 - Share experiences at a selected place.
-- Select vibe preferences, such as Relaxing, Crowded, Cozy, Good Vibes, and Focus.
+- Select a vibe: Tenang, Ramai, or Fokus.
 - Select comfort features, including air conditioning, comfortable chairs, and spacious tables.
 - Choose activities and price categories.
-- Add comments or reviews.
-- Receive a success confirmation and XP reward after check-in.
+- Add an optional comment.
+- Save the selected place, vibe, tags, price level, user, and server-generated timestamp to Supabase.
+- Keep check-in access scoped to the signed-in user's row through Row Level Security.
 
 ### 7. Ranking
 - **Top Contributor:** Displays contributors ranked by contribution activity.
@@ -65,7 +66,21 @@ Map and Profile may display placeholder screens in the current version.
 - **Platform:** Android
 - **UI:** Android UI components and reusable Kotlin components
 - **Project organization:** Data, navigation, screens, themes, and ViewModels
-- **Data source:** Dummy data for demonstration and testing
+- **Data source:** Explore places from Supabase; other community and analytics screens still use sample data
+
+## Configure Supabase Places
+The Explore screen reads rows from the `public.places` table using Ktor and displays `image_url` values with Coil when available.
+
+Add these values to the existing, git-ignored `local.properties` file in the project root (keep its current Android SDK entry):
+
+```properties
+supabase.url=https://zjlxlvyxqoscxyyfvcyb.supabase.co
+supabase.publishableKey=YOUR_SUPABASE_PUBLISHABLE_KEY
+```
+
+Use the project's publishable key only; never put a secret or `service_role` key in an Android app. Publishable keys go in the `apikey` header. The `places` table must allow reads through its Row Level Security policies.
+
+Check-ins use Supabase anonymous authentication so users can submit without entering account details. Enable **Allow anonymous sign-ins** in Supabase Authentication settings. The `check_ins` table needs Data API access, an identity-generated `id`, the existing authenticated insert policy matching `user_id` with `auth.uid()`, and select/insert grants for the applicable roles. The app stores the anonymous session in private app preferences and refreshes it when needed. Check-in timestamps use the database column's `now()` default.
 
 ## 📂 Project Structure
 ```text
@@ -157,14 +172,14 @@ Where2Go is currently under development.
 
 The current project includes interfaces for authentication, place discovery, place details, check-in, and ranking. Some screens, including Map and Profile, still use placeholder content.
 
-The application uses dummy data for demonstration purposes. Live location services, persistent user data, and backend integrations should not be assumed to be available unless implemented separately.
+The Explore place list and check-in submissions are connected to Supabase when configured. Ranking, account profiles, and some place detail metrics still use sample data. Live location services and the Map and Profile screens remain future work.
 
 ## 🔮 Future Improvements
 Potential future improvements include:
 - Integration with a map service and real-time location data.
 - Complete user profile management.
-- Backend authentication and persistent user accounts.
-- Persistent storage for check-ins and reviews.
+- Linking anonymous sessions to persistent user accounts.
+- Ranking and review screens backed by stored check-in data.
 - Live place information and updated check-in statistics.
 - More advanced search and personalized recommendations.
 

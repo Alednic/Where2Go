@@ -7,11 +7,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import org.umn.where2go.data.DummyData
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.launch
 import org.umn.where2go.data.Place
 import org.umn.where2go.data.Vibe
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import org.umn.where2go.data.SupabasePlacesRepository
 
 enum class ExploreFilter(val label: String) {
     ALL("Semua"), QUIET("Tenang"), STUDY("Nugas"), BUDGET("Budget")
@@ -20,15 +20,28 @@ enum class ExploreFilter(val label: String) {
 class ExploreViewModel : ViewModel() {
     var isLoading by mutableStateOf(true); private set
     var places by mutableStateOf<List<Place>>(emptyList()); private set
+    var errorMessage by mutableStateOf<String?>(null); private set
     var query by mutableStateOf(""); private set
     var filter by mutableStateOf(ExploreFilter.ALL); private set
     val favorites = mutableStateListOf<Int>()
 
     init {
+        refreshPlaces()
+    }
+
+    fun refreshPlaces() {
         viewModelScope.launch {
-            delay(1200)
-            places = DummyData.places
-            isLoading = false
+            isLoading = true
+            errorMessage = null
+            try {
+                places = SupabasePlacesRepository.fetchPlaces()
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (error: Exception) {
+                errorMessage = error.message ?: "Gagal mengambil data tempat."
+            } finally {
+                isLoading = false
+            }
         }
     }
 
@@ -38,7 +51,7 @@ class ExploreViewModel : ViewModel() {
                 ExploreFilter.ALL -> true
                 ExploreFilter.QUIET -> p.vibe == Vibe.QUIET
                 ExploreFilter.STUDY -> p.vibe == Vibe.STUDY
-                ExploreFilter.BUDGET -> p.minOrderK <= 15
+                ExploreFilter.BUDGET -> p.minOrderK in 1..15
             }
             val byQuery = query.isBlank() ||
                     p.name.contains(query, true) ||

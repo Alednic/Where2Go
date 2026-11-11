@@ -10,7 +10,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import org.umn.where2go.data.DummyData
 import org.umn.where2go.ui.screen.AuthScreen
 import org.umn.where2go.ui.screen.BottomNavBar
 import org.umn.where2go.ui.screen.CheckInScreen
@@ -72,11 +71,9 @@ fun AppNav(
                 navController.navigateToTab(route)
             },
             onCheckInClick = {
-                val nearest = DummyData.places
-                    .minByOrNull { it.distanceKm }
-                    ?.id ?: 1
-
-                navController.navigate(Routes.checkIn(nearest))
+                exploreVm.places.firstOrNull()?.id?.let { id ->
+                    navController.navigate(Routes.checkIn(id))
+                }
             }
         )
     }
@@ -171,6 +168,7 @@ fun AppNav(
 
             CheckInScreen(
                 placeId = id,
+                places = exploreVm.places,
                 onBack = {
                     navController.popBackStack()
                 },

@@ -3,7 +3,7 @@ package org.umn.where2go.data
 import androidx.annotation.DrawableRes
 
 enum class Vibe(val label: String) {
-    QUIET("Tenang"), STUDY("Nugas"), LIVELY("Ramai")
+    QUIET("Tenang"), STUDY("Nugas"), LIVELY("Ramai"), UNKNOWN("Belum diketahui")
 }
 
 data class DayPart(val label: String, val vibe: Vibe)
@@ -35,11 +35,15 @@ data class Place(
     val suitability: Suitability = Suitability(60, 50, 40),
     val culinary: List<Culinary> = emptyList(),
     val cardTags: List<String> = emptyList(),
-    @DrawableRes val imageRes: Int? = null
+    @DrawableRes val imageRes: Int? = null,
+    val latitude: Double? = null,
+    val longitude: Double? = null,
+    val imageUrl: String? = null
 )
 
 fun Place.distanceLabel(): String =
-    if (distanceKm < 1.0) "${(distanceKm * 1000).toInt()}m" else "%.1f km".format(distanceKm)
+    if (distanceKm < 0) "Jarak tidak diketahui"
+    else if (distanceKm < 1.0) "${(distanceKm * 1000).toInt()}m" else "%.1f km".format(distanceKm)
 
 data class Review(
     val id: Int,

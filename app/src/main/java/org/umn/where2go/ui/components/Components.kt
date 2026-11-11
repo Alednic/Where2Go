@@ -16,6 +16,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import coil3.compose.AsyncImage
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -40,6 +41,7 @@ fun Vibe.color(): Color = when (this) {
     Vibe.QUIET -> VibeQuietColor
     Vibe.STUDY -> VibeStudyColor
     Vibe.LIVELY -> VibeLivelyColor
+    Vibe.UNKNOWN -> Color(0xFF6B7280)
 }
 
 @Composable
@@ -101,10 +103,18 @@ fun PhotoBox(
     @DrawableRes imageRes: Int?,
     modifier: Modifier = Modifier,
     fallback: Color = Violet,
-    shape: Shape = RectangleShape
+    shape: Shape = RectangleShape,
+    imageUrl: String? = null
 ) {
     Box(modifier.clip(shape)) {
-        if (imageRes != null) {
+        if (!imageUrl.isNullOrBlank()) {
+            AsyncImage(
+                model = imageUrl,
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
+            )
+        } else if (imageRes != null) {
             Image(
                 painter = painterResource(imageRes),
                 contentDescription = null,
@@ -127,4 +137,5 @@ fun Vibe.icon(): ImageVector = when (this) {
     Vibe.QUIET -> Icons.Filled.Eco
     Vibe.LIVELY -> Icons.Filled.LocalFireDepartment
     Vibe.STUDY -> Icons.Filled.MenuBook
+    Vibe.UNKNOWN -> Icons.Filled.MenuBook
 }

@@ -113,6 +113,18 @@ fun ExploreScreen(
                     }
                 }
 
+                vm.errorMessage != null -> {
+                    Column(
+                        Modifier.fillMaxSize().padding(24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(vm.errorMessage.orEmpty(), style = MaterialTheme.typography.bodyLarge)
+                        Spacer(Modifier.height(12.dp))
+                        Button(onClick = vm::refreshPlaces) { Text("Coba lagi") }
+                    }
+                }
+
                 vm.filteredPlaces.isEmpty() -> {
                     Box(
                         Modifier.fillMaxSize(),

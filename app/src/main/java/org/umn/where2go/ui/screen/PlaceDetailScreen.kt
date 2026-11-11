@@ -19,9 +19,12 @@ import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.MenuBook
+import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material3.*
+import coil3.compose.AsyncImage
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,6 +36,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import android.content.Intent
+import android.net.Uri
 import org.umn.where2go.data.*
 import org.umn.where2go.ui.components.VibeBadge
 import org.umn.where2go.ui.components.color
@@ -45,7 +50,7 @@ private val GrayLight = Color(0xFF9CA3AF)
 
 @Composable
 fun PlaceDetailScreen(placeId: Int, vm: ExploreViewModel, onBack: () -> Unit, onCheckIn: () -> Unit) {
-    val place = remember(placeId) { DummyData.places.find { it.id == placeId } }
+    val place = vm.places.find { it.id == placeId }
     Scaffold(
         contentWindowInsets = WindowInsets(0),
         containerColor = MaterialTheme.colorScheme.background,
@@ -83,6 +88,7 @@ private fun DetailContent(
     place: Place, isFavorite: Boolean, onBack: () -> Unit, onToggleFavorite: () -> Unit, modifier: Modifier = Modifier
 ) {
     val reviews = remember(place.id) { DummyData.reviews.filter { it.placeId == place.id } }
+    val context = LocalContext.current
     Column(modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
         Hero(place, isFavorite, onBack, onToggleFavorite)
 
@@ -100,24 +106,88 @@ private fun DetailContent(
                 place.tags.forEach { TagChip(it) }
             }
 
+            SectionTitle("Tentang tempat ini")
+            Text(
+                place.description.ifBlank { "Belum ada deskripsi untuk tempat ini." },
+                style = MaterialTheme.typography.bodyMedium,
+                color = GrayText
+            )
+
+            SectionTitle("Jam operasional")
+            Card(Modifier.fillMaxWidth()) {
+                Row(
+                    Modifier.fillMaxWidth().padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Icon(Icons.Filled.AccessTime, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                    Text(
+                        place.openHours.ifBlank { "Belum tersedia" },
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+            }
+
+            SectionTitle("Fasilitas")
+            if (place.facilities.isEmpty()) {
+                Text("Informasi fasilitas belum tersedia.", style = MaterialTheme.typography.bodyMedium, color = GrayText)
+            } else {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    place.facilities.forEach { facility ->
+                        Text("•  $facility", style = MaterialTheme.typography.bodyMedium)
+                    }
+                }
+            }
+
+            OutlinedButton(
+                onClick = {
+                    val query = if (place.latitude != null && place.longitude != null) {
+                        "${place.latitude},${place.longitude}"
+                    } else {
+                        "${place.name}, ${place.address}"
+                    }
+                    val mapsUri = Uri.parse("https://www.google.com/maps/search/?api=1&query=${Uri.encode(query)}")
+                    context.startActivity(Intent(Intent.ACTION_VIEW, mapsUri))
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(Icons.Filled.LocationOn, contentDescription = null)
+                Spacer(Modifier.width(8.dp))
+                Text("Lihat lokasi di Maps")
+            }
+
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                StatCard("${place.rating}", "Vibe Score", Modifier.weight(1f))
-                StatCard("${place.checkIns}", "Check-ins", Modifier.weight(1f))
-                StatCard(if (place.minOrderK > 0) "Rp. ${place.minOrderK}K" else "Gratis", "Min. Order", Modifier.weight(1f))
+                StatCard(if (place.rating < 0) "Belum ada" else "${place.rating}", "Vibe Score", Modifier.weight(1f))
+                StatCard(if (place.checkIns < 0) "Belum ada" else "${place.checkIns}", "Check-ins", Modifier.weight(1f))
+                StatCard(
+                    when {
+                        place.minOrderK < 0 -> "Belum ada"
+                        place.minOrderK == 0 -> "Gratis"
+                        else -> "Rp. ${place.minOrderK}K"
+                    },
+                    "Min. Order",
+                    Modifier.weight(1f)
+                )
             }
 
             SectionTitle("Jam Ramai")
-            PeakHoursChart(place.peakHours)
+            if (place.peakHours.isEmpty()) Text("Belum ada data jam ramai.") else PeakHoursChart(place.peakHours)
 
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                place.dayparts.forEach { DaypartCard(it, Modifier.weight(1f)) }
+            if (place.dayparts.isNotEmpty()) {
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    place.dayparts.forEach { DaypartCard(it, Modifier.weight(1f)) }
+                }
             }
 
             SectionTitle("Cocok untuk")
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                SuitabilityRow("Nugas", place.suitability.nugas, BarNugas)
-                SuitabilityRow("Hangout", place.suitability.hangout, BarHangout)
-                SuitabilityRow("Meeting", place.suitability.meeting, BarMeeting)
+            if (place.suitability.nugas + place.suitability.hangout + place.suitability.meeting == 0) {
+                Text("Belum ada data rekomendasi aktivitas.")
+            } else {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    SuitabilityRow("Nugas", place.suitability.nugas, BarNugas)
+                    SuitabilityRow("Hangout", place.suitability.hangout, BarHangout)
+                    SuitabilityRow("Meeting", place.suitability.meeting, BarMeeting)
+                }
             }
 
             SectionTitle("Kuliner")
@@ -147,7 +217,14 @@ private fun DetailContent(
 private fun Hero(place: Place, isFavorite: Boolean, onBack: () -> Unit, onToggleFavorite: () -> Unit) {
     val img = place.imageRes
     Box(Modifier.fillMaxWidth().aspectRatio(2.0f)) {
-        if (img != null) {
+        if (!place.imageUrl.isNullOrBlank()) {
+            AsyncImage(
+                model = place.imageUrl,
+                contentDescription = place.name,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
+            )
+        } else if (img != null) {
             Image(painterResource(img), null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
         } else {
             Box(Modifier.fillMaxSize().background(
@@ -164,9 +241,13 @@ private fun Hero(place: Place, isFavorite: Boolean, onBack: () -> Unit, onToggle
             color = TagWifiBg, shape = CircleShape,
             modifier = Modifier.align(Alignment.BottomStart).padding(12.dp)
         ) {
-            Text("${place.vibe.label} sekarang", color = TagWifiFg, fontWeight = FontWeight.SemiBold,
+            Text(
+                if (place.vibe == Vibe.UNKNOWN) "Vibe belum tersedia" else "${place.vibe.label} sekarang",
+                color = TagWifiFg,
+                fontWeight = FontWeight.SemiBold,
                 style = MaterialTheme.typography.labelLarge,
-                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp))
+                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+            )
         }
     }
 }
