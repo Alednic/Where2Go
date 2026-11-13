@@ -6,12 +6,9 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.launch
 import org.umn.where2go.data.Place
 import org.umn.where2go.data.Vibe
-import org.umn.where2go.data.SupabasePlacesRepository
+import org.umn.where2go.data.DummyData
 
 enum class ExploreFilter(val label: String) {
     ALL("Semua"), QUIET("Tenang"), STUDY("Nugas"), BUDGET("Budget")
@@ -30,19 +27,10 @@ class ExploreViewModel : ViewModel() {
     }
 
     fun refreshPlaces() {
-        viewModelScope.launch {
-            isLoading = true
-            errorMessage = null
-            try {
-                places = SupabasePlacesRepository.fetchPlaces()
-            } catch (cancelled: CancellationException) {
-                throw cancelled
-            } catch (error: Exception) {
-                errorMessage = error.message ?: "Gagal mengambil data tempat."
-            } finally {
-                isLoading = false
-            }
-        }
+        isLoading = true
+        errorMessage = null
+        places = DummyData.places
+        isLoading = false
     }
 
     val filteredPlaces: List<Place>
@@ -66,3 +54,4 @@ class ExploreViewModel : ViewModel() {
         if (id in favorites) favorites.remove(id) else favorites.add(id)
     }
 }
+

@@ -5,12 +5,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import org.umn.where2go.data.Place
 import org.umn.where2go.data.Vibe
-import org.umn.where2go.data.SupabaseCheckInRepository
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.launch
 
 object CheckInOptions {
     val vibes = listOf("Tenang", "Ramai", "Fokus")
@@ -50,82 +46,43 @@ class CheckInViewModel : ViewModel() {
     }
 
     val vibeError: String?
-        get() =
-            if (submitted && vibe == null) "Pilih satu vibe" else null
+        get() = if (submitted && vibe == null) "Pilih satu vibe" else null
     val comfortError: String?
-        get() =
-            if (submitted && comforts.isEmpty()) "Pilih minimal satu kenyamanan" else null
+        get() = if (submitted && comforts.isEmpty()) "Pilih minimal satu kenyamanan" else null
     val activityError: String?
-        get() =
-            if (submitted && activities.isEmpty()) "Pilih minimal satu aktivitas" else null
+        get() = if (submitted && activities.isEmpty()) "Pilih minimal satu aktivitas" else null
     val priceError: String?
-        get() =
-            if (submitted && price == null) "Pilih satu kategori harga" else null
+        get() = if (submitted && price == null) "Pilih satu kategori harga" else null
 
-    fun selectVibe(v: String) { vibe = v }
+    fun selectVibe(value: String) { vibe = value }
 
-    fun toggleComfort(v: String) {
-        comforts = if (v in comforts) comforts - v else comforts + v
+    fun toggleComfort(value: String) {
+        comforts = if (value in comforts) comforts - value else comforts + value
     }
 
-    fun toggleActivity(v: String) {
-        activities = if (v in activities) activities - v else activities + v
+    fun toggleActivity(value: String) {
+        activities = if (value in activities) activities - value else activities + value
     }
 
-    fun selectPrice(v: String) {
-        price = v
+    fun selectPrice(value: String) { price = value }
+
+    fun onComment(value: String) {
+        if (value.length <= CheckInOptions.MAX_COMMENT) comment = value
     }
 
-    fun onComment(v: String) {
-        if (v.length <= CheckInOptions.MAX_COMMENT) comment = v
-    }
-
+    @Suppress("UNUSED_PARAMETER")
     fun submit(context: Context, placeId: Long) {
         submitted = true
-        val selectedVibe = vibe
-        val selectedPrice = price
-        val valid = selectedVibe != null && comforts.isNotEmpty() &&
-                activities.isNotEmpty() && price != null
+        val valid = vibe != null && comforts.isNotEmpty() && activities.isNotEmpty() && price != null
         if (!valid) return
-        viewModelScope.launch {
-            isSubmitting = true
-            errorMessage = null
-            try {
-                SupabaseCheckInRepository.submit(
-                    context = context.applicationContext,
-                    placeId = placeId,
-                    vibe = selectedVibe!!.toDatabaseVibe(),
-                    comfortTags = comforts.toList(),
-                    activityTags = activities.toList(),
-                    priceLevel = selectedPrice!!.toDatabasePriceLevel(),
-                    comment = comment
-                )
-                showSuccess = true
-            } catch (cancelled: CancellationException) {
-                throw cancelled
-            } catch (error: Exception) {
-                errorMessage = error.message ?: "Check-in gagal disimpan. Periksa koneksi lalu coba lagi."
-            } finally {
-                isSubmitting = false
-            }
-        }
+
+        // Simulasi UI sementara: data belum dikirim atau disimpan ke database.
+        errorMessage = null
+        isSubmitting = false
+        showSuccess = true
     }
 
     fun dismissSuccess() {
         showSuccess = false
-    }
-
-    private fun String.toDatabaseVibe(): String = when (this) {
-        "Tenang" -> "QUIET"
-        "Ramai" -> "LIVELY"
-        "Fokus" -> "STUDY"
-        else -> error("Vibe tidak dikenal: $this")
-    }
-
-    private fun String.toDatabasePriceLevel(): String = when (this) {
-        "Affordable" -> "LOW"
-        "Mid-range" -> "MEDIUM"
-        "Premium" -> "HIGH"
-        else -> error("Kategori harga tidak dikenal: $this")
     }
 }

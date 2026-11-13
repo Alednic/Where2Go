@@ -15,6 +15,7 @@ import org.umn.where2go.ui.screen.BottomNavBar
 import org.umn.where2go.ui.screen.CheckInScreen
 import org.umn.where2go.ui.screen.ExploreScreen
 import org.umn.where2go.ui.screen.LeaderboardScreen
+import org.umn.where2go.ui.screen.MapScreen
 import org.umn.where2go.ui.screen.PermissionScreen
 import org.umn.where2go.ui.screen.PlaceDetailScreen
 import org.umn.where2go.ui.screen.PlaceholderScreen
@@ -119,7 +120,7 @@ fun AppNav(
         }
 
         composable(Routes.MAP) {
-            PlaceholderScreen("Map", bottomBar)
+            MapScreen(bottomBar = bottomBar)
         }
 
         composable(Routes.EXPLORE) {
@@ -179,3 +180,5 @@ fun AppNav(
         }
     }
 }
+
+

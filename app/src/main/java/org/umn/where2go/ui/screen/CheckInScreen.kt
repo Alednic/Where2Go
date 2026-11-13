@@ -122,7 +122,7 @@ fun CheckInScreen(
         AlertDialog(
             onDismissRequest = {},
             title = { Text("Check-in berhasil!") },
-            text = { Text("Check-in sudah tersimpan. Terima kasih sudah berbagi vibe!") },
+            text = { Text("Simulasi tampilan: data Check-in belum disimpan ke database.") },
             confirmButton = {
                 TextButton(onClick = { vm.dismissSuccess(); onDone() }) { Text("OK") }
             }
@@ -218,3 +218,4 @@ private fun ChoiceChip(
         }
     }
 }
+
