@@ -1,7 +1,10 @@
 package org.umn.where2go.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -19,8 +22,13 @@ import org.umn.where2go.ui.screen.MapScreen
 import org.umn.where2go.ui.screen.PermissionScreen
 import org.umn.where2go.ui.screen.PlaceDetailScreen
 import org.umn.where2go.ui.screen.PlaceholderScreen
+import org.umn.where2go.ui.screen.ProfileScreen
 import org.umn.where2go.ui.screen.SplashScreen
 import org.umn.where2go.viewmodel.ExploreViewModel
+import org.umn.where2go.data.Where2GoBackend
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 object Routes {
     const val SPLASH = "splash"
@@ -54,10 +62,19 @@ fun AppNav(
     onThemeChange: (Boolean) -> Unit
 ) {
     val navController = rememberNavController()
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     val exploreVm: ExploreViewModel = viewModel()
 
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route
+
+    // Reload approved places whenever the user returns to the public place lists.
+    LaunchedEffect(currentRoute) {
+        if (currentRoute == Routes.EXPLORE || currentRoute == Routes.MAP || currentRoute == Routes.DETAIL) {
+            exploreVm.refreshPlaces()
+        }
+    }
 
     val placeArg = listOf(
         navArgument(Routes.ARG_PLACE_ID) {
@@ -86,9 +103,12 @@ fun AppNav(
         composable(Routes.SPLASH) {
             SplashScreen(
                 onFinished = {
-                    navController.navigate(Routes.AUTH) {
-                        popUpTo(Routes.SPLASH) {
-                            inclusive = true
+                    scope.launch {
+                        val hasSession = withContext(Dispatchers.IO) {
+                            Where2GoBackend.currentSession(context)?.isAnonymous == false
+                        }
+                        navController.navigate(if (hasSession) Routes.EXPLORE else Routes.AUTH) {
+                            popUpTo(Routes.SPLASH) { inclusive = true }
                         }
                     }
                 }
@@ -109,6 +129,7 @@ fun AppNav(
 
         composable(Routes.PERMISSION) {
             PermissionScreen(
+                onLocationFound = exploreVm::updateUserLocation,
                 onContinue = {
                     navController.navigate(Routes.EXPLORE) {
                         popUpTo(Routes.PERMISSION) {
@@ -120,7 +141,12 @@ fun AppNav(
         }
 
         composable(Routes.MAP) {
-            MapScreen(bottomBar = bottomBar)
+            MapScreen(
+                bottomBar = bottomBar,
+                places = exploreVm.places,
+                onPlaceClick = { id -> navController.navigate(Routes.detail(id)) },
+                onLocationFound = exploreVm::updateUserLocation
+            )
         }
 
         composable(Routes.EXPLORE) {
@@ -140,7 +166,15 @@ fun AppNav(
         }
 
         composable(Routes.PROFILE) {
-            PlaceholderScreen("Profil", bottomBar)
+            ProfileScreen(
+                bottomBar = bottomBar,
+                onSignedOut = {
+                    navController.navigate(Routes.AUTH) {
+                        popUpTo(Routes.PROFILE) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                }
+            )
         }
 
         composable(
@@ -180,5 +214,8 @@ fun AppNav(
         }
     }
 }
+
+
+
 
 

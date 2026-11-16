@@ -16,6 +16,7 @@ import androidx.compose.material.icons.filled.WorkspacePremium
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -24,15 +25,31 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import org.umn.where2go.data.Contributor
-import org.umn.where2go.data.DummyData
 import org.umn.where2go.data.TopPlace
+import org.umn.where2go.data.Where2GoBackend
 import org.umn.where2go.ui.components.PhotoBox
 import org.umn.where2go.ui.theme.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Composable
 fun LeaderboardScreen(bottomBar: @Composable () -> Unit) {
+    val context = LocalContext.current
     var tab by rememberSaveable { mutableIntStateOf(0) }
-    val sorted = remember { DummyData.contributors.sortedByDescending { it.tags } }
+    var sorted by remember { mutableStateOf<List<Contributor>>(emptyList()) }
+    var places by remember { mutableStateOf<List<TopPlace>>(emptyList()) }
+    var error by remember { mutableStateOf<String?>(null) }
+    var loading by remember { mutableStateOf(true) }
+    LaunchedEffect(Unit) {
+        try {
+            val result = withContext(Dispatchers.IO) {
+                Where2GoBackend.rankings(context, true) to Where2GoBackend.rankings(context, false)
+            }
+            sorted = result.first.mapIndexed { i, row -> Contributor(i + 1, row.name, "${row.score} check-in minggu ini", row.score) }
+            places = result.second.mapIndexed { i, row -> TopPlace(i + 1, row.name, row.place, row.score) }
+        } catch (e: Exception) { error = e.message ?: "Ranking gagal dimuat." }
+        loading = false
+    }
 
     Scaffold(containerColor = MaterialTheme.colorScheme.background, bottomBar = bottomBar) { padding ->
         Column(Modifier.padding(padding).fillMaxSize()) {
@@ -41,22 +58,31 @@ fun LeaderboardScreen(bottomBar: @Composable () -> Unit) {
                 item { RankingHeader(tab) { tab = it } }
 
                 if (tab == 0) {
-                    item { Podium(sorted.take(3)) }
-                    item {
+                    if (sorted.size >= 3) item { Podium(sorted.take(3)) }
+                    if (sorted.isNotEmpty()) item {
                         Text("Lainnya minggu ini", fontWeight = FontWeight.ExtraBold,
                             style = MaterialTheme.typography.titleLarge,
                             modifier = Modifier.padding(start = 16.dp, top = 20.dp, bottom = 4.dp))
                     }
-                    items(sorted.drop(3), key = { it.rank }) { ContributorRow(it) }
+                    items(if (sorted.size >= 3) sorted.drop(3) else sorted, key = { it.rank }) { ContributorRow(it) }
+                    if (sorted.isEmpty()) item { RankingState(loading, error, "Belum ada check-in minggu ini.") }
                 } else {
-                    items(DummyData.topPlaces, key = { it.rank }) { place ->
+                    items(places, key = { it.rank }) { place ->
                         Box(Modifier.padding(horizontal = 24.dp, vertical = 6.dp)) { TopPlaceCard(place) }
                     }
+                    if (places.isEmpty()) item { RankingState(loading, error, "Belum ada tempat dengan check-in minggu ini.") }
                 }
             }
 
-            if (tab == 0) CurrentUserCard(DummyData.currentUser)
         }
+    }
+}
+
+@Composable
+private fun RankingState(loading: Boolean, error: String?, empty: String) {
+    Column(Modifier.fillMaxWidth().padding(28.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+        if (loading) CircularProgressIndicator()
+        else Text(error ?: empty, color = if (error != null) MaterialTheme.colorScheme.error else SubtleGray)
     }
 }
 

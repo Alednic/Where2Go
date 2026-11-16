@@ -60,6 +60,9 @@ import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
+import org.umn.where2go.data.DeviceLocationProvider
+import org.umn.where2go.R
+import org.umn.where2go.data.Place
 import java.io.File
 import java.net.HttpURLConnection
 import java.net.URL
@@ -73,7 +76,12 @@ private data class OSMPlace(
 )
 
 @Composable
-fun MapScreen(bottomBar: @Composable () -> Unit) {
+fun MapScreen(
+    bottomBar: @Composable () -> Unit,
+    places: List<Place>,
+    onPlaceClick: (Int) -> Unit,
+    onLocationFound: (Double, Double) -> Unit
+) {
     val context = LocalContext.current
     val keyboardController = LocalSoftwareKeyboardController.current
     val scope = rememberCoroutineScope()
@@ -89,6 +97,18 @@ fun MapScreen(bottomBar: @Composable () -> Unit) {
     var isSearching by remember { mutableStateOf(false) }
     var searchMessage by remember { mutableStateOf<String?>(null) }
 
+    fun focusUserLocation() {
+        DeviceLocationProvider.requestCurrentLocation(context) { location ->
+            if (location != null) {
+                onLocationFound(location.latitude, location.longitude)
+                mapView.controller.animateTo(GeoPoint(location.latitude, location.longitude))
+                mapView.controller.setZoom(16.0)
+            } else {
+                searchMessage = "Lokasi belum tersedia. Pastikan GPS perangkat aktif."
+            }
+        }
+    }
+
     val locationPermissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
@@ -97,6 +117,7 @@ fun MapScreen(bottomBar: @Composable () -> Unit) {
         if (granted) {
             locationOverlay.enableMyLocation()
             locationOverlay.enableFollowLocation()
+            focusUserLocation()
         } else {
             searchMessage = "Izin lokasi tidak diberikan."
         }
@@ -113,15 +134,33 @@ fun MapScreen(bottomBar: @Composable () -> Unit) {
         }
     }
 
-    LaunchedEffect(results) {
+    LaunchedEffect(results, places) {
         val oldMarkers = mapView.overlays.filterIsInstance<Marker>()
         mapView.overlays.removeAll(oldMarkers)
-        results.forEach { place ->
+        places.forEach { place ->
+            val latitude = place.latitude ?: return@forEach
+            val longitude = place.longitude ?: return@forEach
             mapView.overlays.add(
                 Marker(mapView).apply {
-                    position = GeoPoint(place.latitude, place.longitude)
+                    position = GeoPoint(latitude, longitude)
                     title = place.name
-                    snippet = place.address
+                    icon = ContextCompat.getDrawable(context, R.drawable.ic_map_cafe_pin)
+                    snippet = listOf(place.cardTags.joinToString(" • "), place.address).filter { it.isNotBlank() }.joinToString("\n")
+                    setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+                    setOnMarkerClickListener { _, _ ->
+                        onPlaceClick(place.id)
+                        true
+                    }
+                }
+            )
+        }
+        results.forEach { result ->
+            mapView.overlays.add(
+                Marker(mapView).apply {
+                    position = GeoPoint(result.latitude, result.longitude)
+                    title = result.name
+                    icon = ContextCompat.getDrawable(context, R.drawable.ic_map_cafe_pin)
+                    snippet = result.address
                     setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
                 }
             )
@@ -130,6 +169,12 @@ fun MapScreen(bottomBar: @Composable () -> Unit) {
             val first = results.first()
             mapView.controller.animateTo(GeoPoint(first.latitude, first.longitude))
             mapView.controller.setZoom(16.0)
+        }
+        if (results.isEmpty()) {
+            places.firstOrNull { it.latitude != null && it.longitude != null }?.let { firstPlace ->
+                mapView.controller.setCenter(GeoPoint(firstPlace.latitude!!, firstPlace.longitude!!))
+                mapView.controller.setZoom(14.0)
+            }
         }
         mapView.invalidate()
     }
@@ -169,6 +214,7 @@ fun MapScreen(bottomBar: @Composable () -> Unit) {
         if (fineGranted || coarseGranted) {
             locationOverlay.enableMyLocation()
             locationOverlay.enableFollowLocation()
+            focusUserLocation()
         } else {
             locationPermissionLauncher.launch(
                 arrayOf(
@@ -259,6 +305,21 @@ fun MapScreen(bottomBar: @Composable () -> Unit) {
                                 tint = MaterialTheme.colorScheme.primary
                             )
                         }
+                    }
+                }
+
+                if (places.isNotEmpty() && places.none { it.latitude != null && it.longitude != null }) {
+                    Surface(
+                        shape = RoundedCornerShape(12.dp),
+                        color = MaterialTheme.colorScheme.surface,
+                        shadowElevation = 4.dp
+                    ) {
+                        Text(
+                            text = "Tempat Explore belum memiliki koordinat di database.",
+                            modifier = Modifier.padding(12.dp),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
                 }
 
@@ -425,3 +486,12 @@ private suspend fun searchOpenStreetMap(query: String): List<OSMPlace> {
         connection.disconnect()
     }
 }
+
+
+
+
+
+
+
+
+

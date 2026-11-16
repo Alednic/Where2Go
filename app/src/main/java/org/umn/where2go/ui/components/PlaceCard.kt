@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -21,7 +23,13 @@ import org.umn.where2go.data.distanceLabel
 import org.umn.where2go.ui.theme.*
 
 @Composable
-fun PlaceCard(place: Place, onClick: () -> Unit, modifier: Modifier = Modifier) {
+fun PlaceCard(
+    place: Place,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    isFavorite: Boolean = false,
+    onFavoriteClick: () -> Unit = {}
+) {
     Card(
         onClick = onClick,
         shape = RoundedCornerShape(24.dp),
@@ -41,12 +49,25 @@ fun PlaceCard(place: Place, onClick: () -> Unit, modifier: Modifier = Modifier) 
                         Brush.verticalGradient(listOf(Color.Transparent, Color(0xAA000000)))
                     )
                 )
-                Surface(
-                    color = ChartBar, shape = CircleShape,
-                    modifier = Modifier.align(Alignment.TopEnd).padding(10.dp).size(30.dp)
+                Row(
+                    Modifier.align(Alignment.TopEnd).padding(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Icon(place.vibe.icon(), null, Modifier.size(16.dp), tint = DaypartIcon)
+                    Surface(color = ChartBar, shape = CircleShape, modifier = Modifier.size(30.dp)) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(place.vibe.icon(), null, Modifier.size(16.dp), tint = DaypartIcon)
+                        }
+                    }
+                    Surface(color = Color.White.copy(alpha = 0.95f), shape = CircleShape) {
+                        IconButton(onClick = onFavoriteClick, modifier = Modifier.size(34.dp)) {
+                            Icon(
+                                if (isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                                contentDescription = if (isFavorite) "Hapus dari favorit" else "Tambah ke favorit",
+                                tint = if (isFavorite) MaterialTheme.colorScheme.primary else Color.DarkGray,
+                                modifier = Modifier.size(19.dp)
+                            )
+                        }
                     }
                 }
                 Column(Modifier.align(Alignment.BottomStart).padding(16.dp)) {

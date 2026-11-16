@@ -11,6 +11,16 @@ val localProperties = Properties().apply {
     if (propertiesFile.exists()) propertiesFile.inputStream().use { load(it) }
 }
 
+val supabaseProperties = Properties().apply {
+    val propertiesFile = rootProject.file("secrets.properties")
+    if (propertiesFile.exists()) propertiesFile.inputStream().use { load(it) }
+}
+
+val supabaseUrl = supabaseProperties.getProperty("supabase.url")
+    ?: localProperties.getProperty("supabase.url", "")
+val supabasePublishableKey = supabaseProperties.getProperty("supabase.publishableKey")
+    ?: localProperties.getProperty("supabase.publishableKey", "")
+
 android {
     namespace = "org.umn.where2go"
     compileSdk {
@@ -25,8 +35,8 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        buildConfigField("String", "SUPABASE_URL", "\"${localProperties.getProperty("supabase.url", "")}\"")
-        buildConfigField("String", "SUPABASE_PUBLISHABLE_KEY", "\"${localProperties.getProperty("supabase.publishableKey", "")}\"")
+        buildConfigField("String", "SUPABASE_URL", "\"${supabaseUrl}\"")
+        buildConfigField("String", "SUPABASE_PUBLISHABLE_KEY", "\"${supabasePublishableKey}\"")
     }
 
     buildTypes {
@@ -74,6 +84,8 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     implementation("androidx.compose.material:material-icons-extended")
 }
+
+
 
 
 

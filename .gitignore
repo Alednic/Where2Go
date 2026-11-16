@@ -16,3 +16,6 @@ local.properties
 
 
 
+
+# Local Supabase credentials
+secrets.properties

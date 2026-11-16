@@ -13,6 +13,13 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.ChatBubbleOutline
+import androidx.compose.material.icons.filled.EmojiObjects
+import androidx.compose.material.icons.filled.LocalActivity
+import androidx.compose.material.icons.filled.Payments
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.StarBorder
+import androidx.compose.material.icons.filled.Weekend
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -20,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -72,14 +80,32 @@ fun CheckInScreen(
         ) {
             if (place != null) PlaceSummaryCard(place) else Text("Tempat tidak ditemukan atau data belum selesai dimuat.")
 
-            ChoiceGroup("\u2728", "VIBE", CheckInOptions.vibes, setOfNotNull(vm.vibe), vm::selectVibe,
+            ChoiceGroup(Icons.Filled.EmojiObjects, "VIBE", CheckInOptions.vibes, setOfNotNull(vm.vibe), vm::selectVibe,
                 ChipTeal, ChipTealBg, vm.vibeError)
-            ChoiceGroup("\uD83D\uDECB\uFE0F", "KENYAMANAN", CheckInOptions.comforts, vm.comforts,
+            ChoiceGroup(Icons.Filled.Weekend, "KENYAMANAN", CheckInOptions.comforts, vm.comforts,
                 vm::toggleComfort, ChipTeal, ChipTealBg, vm.comfortError)
-            ChoiceGroup("\uD83C\uDFAF", "AKTIVITAS", CheckInOptions.activities, vm.activities,
+            ChoiceGroup(Icons.Filled.LocalActivity, "AKTIVITAS", CheckInOptions.activities, vm.activities,
                 vm::toggleActivity, ChipSky, ChipSkyBg, vm.activityError)
-            ChoiceGroup("\uD83D\uDCB0", "HARGA", CheckInOptions.prices, setOfNotNull(vm.price),
+            ChoiceGroup(Icons.Filled.Payments, "HARGA", CheckInOptions.prices, setOfNotNull(vm.price),
                 vm::selectPrice, ChipAmber, ChipPriceSelBg, vm.priceError)
+
+            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text("NILAI TEMPAT (OPSIONAL)", fontWeight = FontWeight.ExtraBold,
+                    style = MaterialTheme.typography.titleSmall)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    (1..5).forEach { value ->
+                        IconButton(onClick = { vm.selectPlaceRating(value) }) {
+                            Icon(
+                                if ((vm.placeRating ?: 0) >= value) Icons.Filled.Star else Icons.Filled.StarBorder,
+                                contentDescription = "Nilai $value dari 5",
+                                tint = ChipAmber,
+                                modifier = Modifier.size(28.dp)
+                            )
+                        }
+                    }
+                    Text(vm.placeRating?.let { "$it/5" } ?: "Pilih nilai", style = MaterialTheme.typography.labelMedium)
+                }
+            }
 
             vm.errorMessage?.let { message ->
                 Surface(
@@ -97,8 +123,13 @@ fun CheckInScreen(
 
             // ---- Komentar (opsional) ----
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("\uD83D\uDCAC KOMENTAR", fontWeight = FontWeight.ExtraBold,
-                    style = MaterialTheme.typography.titleSmall)
+                Row(verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Icon(Icons.Filled.ChatBubbleOutline, contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(18.dp))
+                    Text("KOMENTAR", fontWeight = FontWeight.ExtraBold,
+                        style = MaterialTheme.typography.titleSmall)
+                }
                 OutlinedTextField(
                     value = vm.comment, onValueChange = vm::onComment,
                     placeholder = { Text("Tuliskan saran atau kesanmu") },
@@ -122,7 +153,7 @@ fun CheckInScreen(
         AlertDialog(
             onDismissRequest = {},
             title = { Text("Check-in berhasil!") },
-            text = { Text("Simulasi tampilan: data Check-in belum disimpan ke database.") },
+            text = { Text("Check-in tersimpan. Kamu mendapat 10 poin Where2Go!") },
             confirmButton = {
                 TextButton(onClick = { vm.dismissSuccess(); onDone() }) { Text("OK") }
             }
@@ -160,8 +191,13 @@ private fun PlaceSummaryCard(place: Place) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            PhotoBox(place.imageRes, Modifier.size(60.dp), fallback = place.vibe.color(),
-                shape = RoundedCornerShape(14.dp))
+            PhotoBox(
+                imageRes = place.imageRes,
+                modifier = Modifier.size(60.dp),
+                fallback = place.vibe.color(),
+                shape = RoundedCornerShape(14.dp),
+                imageUrl = place.imageUrl
+            )
             Column {
                 Text(place.name, color = TitleInk, fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.titleMedium)
@@ -171,15 +207,16 @@ private fun PlaceSummaryCard(place: Place) {
     }
 }
 
-/** Satu grup chip: judul + tanda wajib (*) + chip yang membungkus + pesan error. */
+/** Grup pilihan menggunakan ikon Material, chip responsif, dan pesan validasi. */
 @Composable
 private fun ChoiceGroup(
-    emoji: String, title: String, options: List<String>, selected: Set<String>,
+    icon: ImageVector, title: String, options: List<String>, selected: Set<String>,
     onToggle: (String) -> Unit, accent: Color, selectedBg: Color, errorText: String?
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("$emoji ", style = MaterialTheme.typography.titleMedium)
+            Icon(icon, contentDescription = null, tint = accent, modifier = Modifier.size(18.dp))
+            Spacer(Modifier.width(8.dp))
             Text(title, fontWeight = FontWeight.ExtraBold, style = MaterialTheme.typography.titleSmall)
             Text(" *", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
         }

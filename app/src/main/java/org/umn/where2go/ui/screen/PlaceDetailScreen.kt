@@ -22,8 +22,7 @@ import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material3.*
 import coil3.compose.AsyncImage
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,7 +37,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import android.content.Intent
 import android.net.Uri
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.umn.where2go.data.*
+import org.umn.where2go.data.Where2GoBackend
 import org.umn.where2go.ui.components.VibeBadge
 import org.umn.where2go.ui.components.color
 import org.umn.where2go.ui.theme.*
@@ -50,6 +52,7 @@ private val GrayLight = Color(0xFF9CA3AF)
 
 @Composable
 fun PlaceDetailScreen(placeId: Int, vm: ExploreViewModel, onBack: () -> Unit, onCheckIn: () -> Unit) {
+    val context = LocalContext.current
     val place = vm.places.find { it.id == placeId }
     Scaffold(
         contentWindowInsets = WindowInsets(0),
@@ -65,7 +68,7 @@ fun PlaceDetailScreen(placeId: Int, vm: ExploreViewModel, onBack: () -> Unit, on
                 place = place,
                 isFavorite = place.id in vm.favorites,
                 onBack = onBack,
-                onToggleFavorite = { vm.toggleFavorite(place.id) },
+                onToggleFavorite = { vm.toggleFavorite(context, place.id) },
                 modifier = Modifier.padding(padding)
             )
         }
@@ -87,8 +90,21 @@ private fun CheckInBar(onCheckIn: () -> Unit) {
 private fun DetailContent(
     place: Place, isFavorite: Boolean, onBack: () -> Unit, onToggleFavorite: () -> Unit, modifier: Modifier = Modifier
 ) {
-    val reviews = remember(place.id) { DummyData.reviews.filter { it.placeId == place.id } }
     val context = LocalContext.current
+    var reviews by remember(place.id) { mutableStateOf<List<Review>>(emptyList()) }
+    var reviewsLoading by remember(place.id) { mutableStateOf(true) }
+    var reviewsError by remember(place.id) { mutableStateOf<String?>(null) }
+    LaunchedEffect(place.id, place.checkIns) {
+        reviewsLoading = true
+        try {
+            reviews = withContext(Dispatchers.IO) { Where2GoBackend.placeReviews(context, place.id) }
+            reviewsError = null
+        } catch (error: Exception) {
+            reviewsError = error.message ?: "Ulasan gagal dimuat."
+        } finally {
+            reviewsLoading = false
+        }
+    }
     Column(modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
         Hero(place, isFavorite, onBack, onToggleFavorite)
 
@@ -157,7 +173,7 @@ private fun DetailContent(
             }
 
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                StatCard(if (place.rating < 0) "Belum ada" else "${place.rating}", "Vibe Score", Modifier.weight(1f))
+                StatCard(if (place.rating <= 0) "Belum ada" else "${place.rating}", "Vibe Score", Modifier.weight(1f))
                 StatCard(if (place.checkIns < 0) "Belum ada" else "${place.checkIns}", "Check-ins", Modifier.weight(1f))
                 StatCard(
                     when {
@@ -195,7 +211,9 @@ private fun DetailContent(
             place.culinary.forEach { CulinaryCard(it) }
 
             SectionTitle("Ulasan komunitas")
-            if (reviews.isEmpty()) Text("Belum ada ulasan.", style = MaterialTheme.typography.bodyMedium)
+            if (reviewsLoading) LinearProgressIndicator(Modifier.fillMaxWidth())
+            reviewsError?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = GrayText) }
+            if (!reviewsLoading && reviews.isEmpty()) Text("Belum ada ulasan.", style = MaterialTheme.typography.bodyMedium)
             reviews.forEach { r ->
                 Card(Modifier.fillMaxWidth()) {
                     Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {

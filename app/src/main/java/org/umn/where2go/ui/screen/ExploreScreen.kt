@@ -18,12 +18,14 @@ import androidx.compose.material.icons.filled.Savings
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalContext
 import org.umn.where2go.ui.components.PlaceCard
 import org.umn.where2go.ui.theme.*
 import org.umn.where2go.viewmodel.ExploreFilter
@@ -37,6 +39,8 @@ fun ExploreScreen(
     darkTheme: Boolean,
     onThemeChange: (Boolean) -> Unit
 ) {
+    val context = LocalContext.current
+    LaunchedEffect(vm) { vm.loadFavorites(context) }
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         bottomBar = bottomBar
@@ -153,7 +157,9 @@ fun ExploreScreen(
                         ) { place ->
                             PlaceCard(
                                 place,
-                                onClick = { onPlaceClick(place.id) }
+                                onClick = { onPlaceClick(place.id) },
+                                isFavorite = place.id in vm.favorites,
+                                onFavoriteClick = { vm.toggleFavorite(context, place.id) }
                             )
                         }
                     }
